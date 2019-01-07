@@ -48,10 +48,6 @@ object YouTubeDL {
     const val YOUTUBEDL = "youtube-dl"
     const val BESTAUDIO = "bestaudio"
 
-    fun ProcessBuilder.loadEnv() : ProcessBuilder {
-        environment().put("PATH", System.getenv("PATH"))
-        return this
-    }
     private fun run(dir : File, command : List<String>): Process {
         val pb = ProcessBuilder()
         pb.command(command)
@@ -120,28 +116,3 @@ object YouTubeDL {
         song.audioFile.commit()
     }
 }
-
-private val Process.input: String
-    get() {
-        val stringBuilder = StringBuilder()
-        val bufferedReader = BufferedReader(InputStreamReader(inputStream))
-        var line: String? = bufferedReader.readLine()
-        while (line != null) {
-            stringBuilder.append(line).append(System.lineSeparator())
-            line = bufferedReader.readLine()
-        }
-        bufferedReader.close()
-        return stringBuilder.toString()
-    }
-private val Process.error: String
-    get() {
-        val stringBuilder = StringBuilder()
-        val bufferedReader = BufferedReader(InputStreamReader(errorStream))
-        var line: String? = bufferedReader.readLine()
-        while (line != null) {
-            stringBuilder.append(line).append(System.lineSeparator())
-            line = bufferedReader.readLine()
-        }
-        bufferedReader.close()
-        return stringBuilder.toString()
-    }

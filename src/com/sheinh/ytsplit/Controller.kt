@@ -47,6 +47,7 @@ class Controller(val stage : Stage){
     @FXML
     private lateinit var formatComboBox : ComboBox<String>
 
+    private val youtubeDL : SplitIO()
     private val songsTable = TableView<Song>()
     private var songs = ArrayList<Song>()
     set(value){
@@ -163,19 +164,16 @@ class Controller(val stage : Stage){
         }
     }
     private fun handleDescriptionButton(){
-        val action = Runnable {
-            YouTubeDL.url = urlField.text
-            val description = YouTubeDL.description
+        val thread = Thread{
+            youtubeDL.url = urlField.text
+            youtubeDL.loadJsonData()
+            val description = youtubeDL.getProperty("description")
             descriptionBox.text = description
-            albumField.text = YouTubeDL.title
-            val enc = YouTubeDL.encoding
-            bitrateField.text = enc.bitrate.toString()
-            when {
-                enc.codec == YouTubeDL.Codec.m4a -> formatComboBox.selectionModel.select(1)
-                enc.codec == YouTubeDL.Codec.opus -> formatComboBox.selectionModel.select(0)
-            }
+            albumField.text = youtubeDL.getProperty("title")
+            val enc = youtubeDL.acodec
+            bitrateField.text = youtubeDL.getProperty("abr")
+            formatComboBox.selectionModel.select( if(enc == "m4a") 1 else 0 )
         }
-        val thread = Thread(action)
         thread.run()
     }
     private fun handleRegexButton(){

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="mainVBox" prefWidth="520.0" spacing="5.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+   <Label text="Output" />
+   <HBox>
+      <TextField fx:id="outputFolderField" promptText="Output Folder" HBox.hgrow="ALWAYS" />
+      <Button fx:id="outputFolderChooserButton" mnemonicParsing="false" prefWidth="10.0" text="..." />
+   </HBox>
+   <HBox>
+      <children>
+         <TextField fx:id="bitrateField" promptText="Bitrate (Kbps)" HBox.hgrow="ALWAYS" />
+         <ComboBox fx:id="formatComboBox" promptText="Format">
+            <items>
+               <FXCollections fx:factory="observableArrayList">
+                  <String fx:value=".ogg" />
+                  <String fx:value=".m4a" />
+                  <String fx:value=".mp3" />
+               </FXCollections>
+            </items>
+         </ComboBox>
+      </children>
+   </HBox>
+   <Button fx:id="downloadButton" disable="true" maxWidth="Infinity" mnemonicParsing="false" text="Save Music" />
+</VBox>
