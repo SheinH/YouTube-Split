@@ -14,7 +14,7 @@ Each track begins at its timestamp and ends at the timestamp of the next track.
 
 ![Tracks](https://i.imgur.com/xK3lpkU.png)
 
-The user can then choose the bitrate and format of the songs along with their destination folder.
+The user must then choose the bitrate and format of the songs along with an output folder.
 Finally, the user can press download to save the album.
 
 ![Output](https://i.imgur.com/jjUU7ld.png)
