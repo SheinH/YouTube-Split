@@ -82,10 +82,7 @@ class YouTubeDL {
         }
         outputFiles = HashMap()
         songs.forEach{
-            val ext = when(encoding){
-                "opus" -> ".ogg"
-                else -> encoding
-            }
+            val ext = encoding
             val outFileName = String.format("%02d", it.trackNo) + ". ${it.artist} - ${it.song}.${ext}"
             val command = ArrayList<String>(10)
             command.addAll(WINDOWS_ARGS)

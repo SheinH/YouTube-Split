@@ -33,7 +33,6 @@
                <ComboBox fx:id="formatComboBox" promptText="Format">
                    <items>
                        <FXCollections fx:factory="observableArrayList">
-                           <String fx:value=".ogg" />
                            <String fx:value=".m4a" />
                            <String fx:value=".mp3" />
                        </FXCollections>

@@ -91,10 +91,9 @@ class Controller(val stage : Stage){
     private val album get() = albumField.text
     private val outputDirectory get() = Path.of(outputFolderField.text)
     private val codec get() = when(formatComboBox.selectionModel.selectedIndex) {
-        0 -> "opus"
+        0 -> "m4a"
         1 -> "m4a"
-        2 -> "mp3"
-        else -> "opus"
+        else -> "m4a"
     }
 
     init{
@@ -113,13 +112,12 @@ class Controller(val stage : Stage){
     }
     internal fun secondPaneInit() {
         albumField.text = youtubeDL.getProperty("title")
-        val enc = youtubeDL.acodec
-        bitrateField.text = youtubeDL.getProperty("abr")
-        formatComboBox.selectionModel.select( if(enc == "m4a") 1 else 0 )
         outputFolderChooserButton.setOnAction{ handleFolderChoose() }
         downloadButton.setOnAction { handleDownloadButton() }
         outputFolderField.textProperty().addListener { _, _, _ -> updateDownloadButton() }
         bitrateField.textProperty().addListener { _, _, _ -> updateDownloadButton() }
+        formatComboBox.selectionModelProperty().addListener{_, _,_ -> updateDownloadButton() }
+
         formatComboBox.selectionModel.selectedItemProperty().addListener{ _, _, _ -> updateDownloadButton() }
         songsTable.columns.clear()
         val track = TableColumn<Song,Int>("#")
@@ -167,7 +165,7 @@ class Controller(val stage : Stage){
         }
     }
     private fun updateDownloadButton(){
-        if(formatComboBox.selectionModel.selectedItem.isEmpty()){
+        if(formatComboBox.selectionModel.selectedItem == null){
             downloadButton.disableProperty().value = true
             return
         }

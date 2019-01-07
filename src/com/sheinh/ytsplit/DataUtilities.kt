@@ -58,6 +58,7 @@ class Song(song: String, artist: String, timestamp : Timestamp) : Comparable<Son
     fun writeTag(audioFile: AudioFile){
         audioFile.tag.setField(FieldKey.ARTIST,artist)
         audioFile.tag.setField(FieldKey.TITLE,song)
+        audioFile.tag.setField(FieldKey.ALBUM,album)
         if(trackNo!= null)
             audioFile.tag.setField(FieldKey.TRACK,trackNo.toString())
         audioFile.commit()
