@@ -9,7 +9,6 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -18,19 +17,10 @@
    <children>
        <VBox spacing="10.0" style="-fx-alignment: center;">
       <Label text="Album Art" />
-      <ImageView fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../../../Downloads/a1825547906_10.jpg" />
-         </image>
-      </ImageView>
+      <ImageView fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" fx:id="albumArt"/>
        </VBox>
-      <TextField prefWidth="400.0" promptText="Album Name" />
-      <TableView prefHeight="200.0" prefWidth="200.0">
-        <columns>
-          <TableColumn prefWidth="75.0" text="#" />
-          <TableColumn prefWidth="132.0" text="Track" />
-            <TableColumn prefWidth="177.0" text="Artist" />
-        </columns>
+      <TextField prefWidth="400.0" promptText="Album Name" fx:id="albumField"/>
+      <TableView prefHeight="200.0" prefWidth="200.0" fx:id="songsTable">
       </TableView>
        <Label text="Output" />
        <HBox>
@@ -51,7 +41,12 @@
                </ComboBox>
            </children>
        </HBox>
-       <Button fx:id="downloadButton" disable="true" maxWidth="Infinity" mnemonicParsing="false" text="Save Music" />
+      <HBox maxWidth="1.7976931348623157E308">
+         <children>
+            <Button mnemonicParsing="false" text="⬅" fx:id="backButton"/>
+             <Button fx:id="downloadButton" disable="true" maxWidth="Infinity" mnemonicParsing="false" text="Save Music" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
    </children>
    <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

@@ -1,5 +1,8 @@
 package com.sheinh.ytsplit
 
+import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import org.jaudiotagger.audio.AudioFile
 import org.jaudiotagger.tag.FieldKey
 import java.lang.IllegalArgumentException
@@ -24,10 +27,32 @@ data class Timestamp(val hours : Int = 0, val minutes : Int = 0, val seconds : I
             "${hours}:${minutes}:${seconds}"
 }
 
-data class Song(var song: String, var artist: String, var timestamp : Timestamp) : Comparable<Song>{
+class Song(song: String, artist: String, timestamp : Timestamp) : Comparable<Song>{
+    private val songProperty = SimpleStringProperty(song)
+    private val artistProperty = SimpleStringProperty(artist)
+    private val timestampProperty = SimpleObjectProperty<Timestamp>(timestamp)
+    private val trackNoProperty = SimpleIntegerProperty()
+    var trackNo : Int?
+    get() = trackNoProperty.value
+    set(value){ trackNoProperty.value = value }
+    var song
+        get() = songProperty.value
+        set(value){ songProperty.value = value}
+    var artist
+    get() = artistProperty.value
+    set(value){ artistProperty.value = value}
+    var timestamp
+        get() = timestampProperty.value
+        set(value){ timestampProperty.value = value}
+    fun songProperty() = songProperty
+    fun artistProperty() = artistProperty
+    fun timestampProperty() = timestampProperty
+    fun trackNoProperty() = trackNoProperty
+
+
     var endTime : Timestamp? = null
     lateinit var album : String
-    var trackNo = 0
+
     override fun compareTo(other: Song): Int = timestamp.compareTo(other.timestamp)
 
     fun writeTag(audioFile: AudioFile){
@@ -53,7 +78,6 @@ internal object RegexStuff{
         string = string.replace("{ARTIST}", artistRegex)
         string = string.replace("{SONG}", songRegex)
         string = string.replace("{TIME}", timestampRegex)
-        string += "(?:\\r\\n|\\r|\\n)"
         println(string)
         return Pattern.compile(string)
     }
@@ -80,7 +104,7 @@ internal object RegexStuff{
         fun safeMatch(matcher: Matcher,group : String) : String {
             try{
                 return matcher.group(group).trim()
-            }finally {
+            }catch(e : IllegalArgumentException){
                 return ""
             }
         }

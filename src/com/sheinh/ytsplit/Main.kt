@@ -12,13 +12,19 @@ class MainApp : Application() {
     lateinit var controller: Controller
     override fun start(stage: Stage) {
         controller = Controller(stage)
-        val fxmlLoader = FXMLLoader(javaClass.getResource("/Layout.fxml"))
+        var fxmlLoader = FXMLLoader(javaClass.getResource("/FirstPane.fxml"))
         fxmlLoader.setController(controller)
-        val root = fxmlLoader.load<Any>() as Parent
+        var root = fxmlLoader.load<Any>() as Parent
+        controller.firstPaneInit()
+        controller.firstPane = root
         stage.title = "YouTube Split"
         stage.scene = Scene(root)
         stage.isResizable = false;
         stage.show()
+        fxmlLoader = FXMLLoader(javaClass.getResource("/SecondPane.fxml"))
+        fxmlLoader.setController(controller)
+        root = fxmlLoader.load<Any>() as Parent
+        controller.secondPane = root
     }
 }
 
