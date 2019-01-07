@@ -4,6 +4,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.StringBuilder
 
+val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
 val Process.input: String
     get() {
         val stringBuilder = StringBuilder()

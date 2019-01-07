@@ -2,8 +2,10 @@ package com.sheinh.ytsplit
 
 import org.jaudiotagger.audio.AudioFile
 import org.jaudiotagger.tag.FieldKey
+import java.lang.IllegalArgumentException
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import java.util.regex.PatternSyntaxException
 
 
 data class Timestamp(val hours : Int = 0, val minutes : Int = 0, val seconds : Int = 0) : Comparable<Timestamp> {
@@ -24,11 +26,11 @@ data class Timestamp(val hours : Int = 0, val minutes : Int = 0, val seconds : I
 
 data class Song(var song: String, var artist: String, var timestamp : Timestamp) : Comparable<Song>{
     var endTime : Timestamp? = null
-    lateinit var audioFile: AudioFile
+    lateinit var album : String
     var trackNo = 0
     override fun compareTo(other: Song): Int = timestamp.compareTo(other.timestamp)
 
-    fun writeTag(){
+    fun writeTag(audioFile: AudioFile){
         audioFile.tag.setField(FieldKey.ARTIST,artist)
         audioFile.tag.setField(FieldKey.TITLE,song)
         if(trackNo!= null)
@@ -46,9 +48,12 @@ internal object RegexStuff{
 
     fun inputToRegex(input : String) : Pattern {
         var string = input
+        if(!string.contains("{TIME}"))
+            throw IllegalArgumentException("Bad pattern")
         string = string.replace("{ARTIST}", artistRegex)
         string = string.replace("{SONG}", songRegex)
-        string = string.replace("{TIMESTAMP}", timestampRegex)
+        string = string.replace("{TIME}", timestampRegex)
+        string += "(?:\\r\\n|\\r|\\n)"
         println(string)
         return Pattern.compile(string)
     }
@@ -72,12 +77,20 @@ internal object RegexStuff{
             }
         }
 
+        fun safeMatch(matcher: Matcher,group : String) : String {
+            try{
+                return matcher.group(group).trim()
+            }finally {
+                return ""
+            }
+        }
+
         val list = ArrayList<Song>()
         matcher.find()
         while(!matcher.hitEnd()){
-            val artist = matcher.group("artist").trim()
-            val song = matcher.group("song").trim()
-            val timestampString = matcher.group("timestamp").trim()
+            val artist = safeMatch(matcher, "artist").trim()
+            val song = safeMatch(matcher, "song").trim()
+            val timestampString = safeMatch(matcher, "timestamp").trim()
             list.add(Song(song,artist,stringToTimestamp(timestampString)))
             matcher.find()
         }

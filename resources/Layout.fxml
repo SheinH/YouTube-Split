@@ -29,11 +29,11 @@
       <font>
          <Font name="Monospaced Regular" size="13.0" />
       </font></TextArea>
-   <Label text="Regular Expression" />
+   <Label text="Pattern" />
    <HBox>
-      <TextField fx:id="regexField" promptText="Regex" HBox.hgrow="ALWAYS">
+      <TextField fx:id="regexField" promptText="Pattern" HBox.hgrow="ALWAYS">
          <tooltip>
-            <Tooltip text="Ex: &quot;{TIMESTAMP} {SONG} - {ARTIST}&quot; matches &quot;2:02 Snail Mail - Heat Wave&quot;" />
+            <Tooltip text="Ex: &quot;{TIMES} {SONG} - {ARTIST}&quot; matches &quot;2:02 Snail Mail - Heat Wave&quot;" />
          </tooltip></TextField>
       <Button fx:id="regexButton" mnemonicParsing="false" prefWidth="30.0" text="➡" />
    </HBox>

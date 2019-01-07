@@ -1,6 +1,6 @@
 package com.sheinh.ytsplit
 
-import javafx.beans.property.SimpleIntegerProperty
+import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.fxml.FXML
 import javafx.scene.control.*
@@ -10,14 +10,11 @@ import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
 import javafx.stage.Stage
 import javafx.util.Callback
-import javafx.util.StringConverter
-import javafx.util.converter.DefaultStringConverter
 import java.io.File
 import java.io.FileNotFoundException
-import java.lang.NumberFormatException
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-import java.util.regex.PatternSyntaxException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.concurrent.Executors
 
 class Controller(val stage : Stage){
 
@@ -47,16 +44,11 @@ class Controller(val stage : Stage){
     @FXML
     private lateinit var formatComboBox : ComboBox<String>
 
-    private val youtubeDL : SplitIO()
+    private val youtubeDL = YouTubeDL()
     private val songsTable = TableView<Song>()
     private var songs = ArrayList<Song>()
-    set(value){
-        if(value == songs)
-            return;
-        downloadButton.disableProperty().value = value == null;
-        field = value
-    }
     private val outputFolderChooser = DirectoryChooser()
+    private val thread = Executors.newSingleThreadExecutor()
 
     private var tableViewShown : Boolean = false
     set(value){
@@ -85,6 +77,15 @@ class Controller(val stage : Stage){
         }
     }
 
+    private val album get() = albumField.text
+    private val outputDirectory get() = Path.of(outputFolderField.text)
+    private val codec get() = when(formatComboBox.selectionModel.selectedIndex) {
+        0 -> "opus"
+        1 -> "m4a"
+        2 -> "mp3"
+        else -> "opus"
+    }
+
     init{
         songsTable.prefWidth = 500.0
         songsTable.prefHeight = 300.0
@@ -99,10 +100,17 @@ class Controller(val stage : Stage){
         song.setOnEditCommit{ it.rowValue.song = it.newValue}
         val artist = TableColumn<Song,String>("Artist")
         artist.cellValueFactory = PropertyValueFactory<Song, String>("artist")
-        artist.cellFactory = Callback<TableColumn<Song, String>, TableCell<Song, String>> { TextFieldTableCell<Song, String>() }
+        artist.cellFactory = Callback<TableColumn<Song, String>, TableCell<Song, String>> {
+            val cell = TextFieldTableCell<Song, String>()
+            val artistRightClick = ContextMenu()
+            val item1 = MenuItem("Set for all")
+            item1.setOnAction { songs.forEach{ it.album = cell.text } }
+            songsTable.items = FXCollections.observableList(songs)
+            cell
+        }
         artist.setOnEditCommit{ it.rowValue.artist = it.newValue}
         songsTable.editableProperty().value = true;
-        songsTable.columns.addAll(track,song,artist);
+        songsTable.columns.addAll(track,song,artist)
     }
     @FXML
     private fun initialize(){
@@ -121,18 +129,12 @@ class Controller(val stage : Stage){
     }
     private fun handleDownloadButton(){
         try {
+            songs.forEach{ it.album = album }
             outputFolderField.disableProperty().value = true
-            var output = YouTubeDL.download(File(outputFolderField.text))
-            var file = File(outputFolderField.text + File.separator + output)
-            val codec = when(formatComboBox.selectionModel.selectedIndex){
-                0 -> YouTubeDL.Codec.opus
-                1 -> YouTubeDL.Codec.m4a
-                2 -> YouTubeDL.Codec.mp3
-                else -> YouTubeDL.Codec.opus
-            }
-            val enc = YouTubeDL.Encoding(bitrateField.text.toInt(),codec)
-            YouTubeDL.split(file,songs,enc)
-            songs.forEach { YouTubeDL.writeAlbum(it,albumField.text) }
+            youtubeDL.download()
+            var directory = outputDirectory.resolve(album)
+            Files.createDirectory(directory)
+            youtubeDL.save(directory,codec,bitrateField.text.toInt(),songs)
         }
         catch(e : FileNotFoundException){}
         finally{
@@ -164,7 +166,7 @@ class Controller(val stage : Stage){
         }
     }
     private fun handleDescriptionButton(){
-        val thread = Thread{
+        thread.submit{
             youtubeDL.url = urlField.text
             youtubeDL.loadJsonData()
             val description = youtubeDL.getProperty("description")
@@ -172,9 +174,8 @@ class Controller(val stage : Stage){
             albumField.text = youtubeDL.getProperty("title")
             val enc = youtubeDL.acodec
             bitrateField.text = youtubeDL.getProperty("abr")
-            formatComboBox.selectionModel.select( if(enc == "m4a") 1 else 0 )
+            Platform.runLater { formatComboBox.selectionModel.select( if(enc == "m4a") 1 else 0 ) }
         }
-        thread.run()
     }
     private fun handleRegexButton(){
         if(!tableViewShown) {
@@ -182,15 +183,13 @@ class Controller(val stage : Stage){
                 val pattern = RegexStuff.inputToRegex(regexField.text)
                 val matcher = pattern.matcher(descriptionBox.text + System.lineSeparator())
                 songs = RegexStuff.matchSongs(matcher)
-                songsTable.populate(songs)
+                songsTable.items = FXCollections.observableList(songs)
                 tableViewShown = !tableViewShown
             }
             catch(e : Exception){
+                e.printStackTrace()
                 return
             }
         }
-    }
-    fun TableView<Song>.populate(list : List<Song>){
-        this.items = FXCollections.observableList(list)
     }
 }
