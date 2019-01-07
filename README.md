@@ -20,4 +20,4 @@ Finally, the user can press download to save the album.
 ![Output](https://i.imgur.com/jjUU7ld.png)
 
 Each song is named with the track number, song title, and artist name.
-The songs also contain metadata tags based on the user input.
+The songs also contain metadata tags based on the user input which can be recognized by external applications.
