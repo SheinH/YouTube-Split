@@ -19,3 +19,4 @@ The cover art can also be changed. The user must then select an audio format and
 
 Finally, after hitting download, the program outputs each song to the target folder as separate files. 
 Each of the filenames are fully formatted and each file comes with metadata info along with cover art.
+This means that other programs and devices can recognize these music files.
