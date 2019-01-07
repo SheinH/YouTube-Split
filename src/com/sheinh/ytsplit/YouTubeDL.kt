@@ -3,12 +3,12 @@ package com.sheinh.ytsplit
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.File
 import java.net.URL
 import java.nio.file.Path
 import java.io.FileOutputStream
 import java.nio.channels.Channels
-import java.nio.channels.ReadableByteChannel
 import java.nio.file.Files
 import java.util.regex.Pattern
 
@@ -36,7 +36,6 @@ class YouTubeDL {
         val pb = ProcessBuilder().loadEnv()
         pb.command(*WINDOWS_ARGS,YOUTUBE, "-J","-f","bestaudio",url)
         val process = pb.start()
-        process.waitFor()
         val input = process.input
         process.waitFor()
         println(input)
@@ -48,12 +47,13 @@ class YouTubeDL {
     fun fetchAlbumArt(){
         val url = URL(getProperty("thumbnail"))
         val rbc = Channels.newChannel(url.openStream())
-        val matcher = Pattern.compile("\\.(.+)\$").matcher(getProperty("thumbnail"))
+        val matcher = Pattern.compile("\\.(.{1,5})\$").matcher(getProperty("thumbnail"))
         matcher.find()
         val ext = matcher.group(1)
         val thumbnailFile = File.createTempFile("thumbnail",ext)
-        val fos = FileOutputStream("information.html")
+        val fos = FileOutputStream(thumbnailFile)
         fos.channel.transferFrom(rbc, 0, java.lang.Long.MAX_VALUE)
+        albumArt = thumbnailFile.toPath()
     }
 
     fun download(){
@@ -71,6 +71,8 @@ class YouTubeDL {
         val file = outputFiles[song]?.toFile()
         if(file!= null){
             val audiofile = AudioFileIO.read(file)
+            val art = ArtworkFactory.createArtworkFromFile(albumArt.toFile())
+            audiofile.tag.setField(art)
             song.writeTag(audiofile)
         }
     }

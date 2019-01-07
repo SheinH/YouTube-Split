@@ -8,6 +8,9 @@ import javafx.scene.Parent
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.control.cell.TextFieldTableCell
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.input.TransferMode
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
@@ -52,6 +55,14 @@ class Controller(val stage : Stage){
     private lateinit var formatComboBox : ComboBox<String>
     @FXML
     private lateinit var songsTable : TableView<Song>
+    @FXML
+    private lateinit var albumArt : ImageView
+
+    private var albumArtImage : Image
+    get() = albumArt.image
+    set(value) {
+        albumArt.image = value
+    }
 
     internal lateinit var firstPane : Parent
     internal lateinit var secondPane : Parent
@@ -117,6 +128,36 @@ class Controller(val stage : Stage){
         outputFolderField.textProperty().addListener { _, _, _ -> updateDownloadButton() }
         bitrateField.textProperty().addListener { _, _, _ -> updateDownloadButton() }
         formatComboBox.selectionModelProperty().addListener{_, _,_ -> updateDownloadButton() }
+        youtubeDL.fetchAlbumArt()
+        albumArt.image = Image(youtubeDL.albumArt.toUri().toString(),200.0,200.0,true,true)
+
+        albumArt.setOnDragOver {
+            if (it.gestureSource != albumArt
+                    && it.getDragboard().hasFiles()) {
+                /* allow for both copying and moving, whatever user chooses */
+                it.acceptTransferModes(*TransferMode.COPY_OR_MOVE);
+            }
+            it.consume();
+        }
+        albumArt.setOnDragDropped {
+            val db = it.dragboard
+                var success = false
+                if (db.hasFiles()) {
+                    if(db.files.size == 1){
+                        val fil = db.files[0]
+                        try{
+                            val img = Image(fil.toURI().toString(),200.0,200.0,true,true)
+                            albumArtImage = img
+                            youtubeDL.albumArt = fil.toPath()
+                            success = true
+                        }
+                        catch(e : Exception){ }
+                    }
+                }
+                it.isDropCompleted = success;
+
+                it.consume()
+        }
 
         formatComboBox.selectionModel.selectedItemProperty().addListener{ _, _, _ -> updateDownloadButton() }
         songsTable.columns.clear()
