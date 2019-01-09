@@ -34,47 +34,47 @@ class AutoCompleteTextField : TextField() {
         entries = TreeSet()
         entriesPopup = ContextMenu()
         textProperty().addListener { observableValue, s, s2 ->
-            if (text.length == 0) {
+            if (text.isEmpty()) {
                 entriesPopup.hide()
             } else {
                 val searchResult = LinkedList<String>()
-                    val matcher = Pattern.compile("(\\S+)\$").matcher(text)
-                    matcher.find()
+                val matcher = Pattern.compile("(\\S+)\$").matcher(text)
+                matcher.find()
                 try {
                     val lastword = matcher.group(1).toUpperCase()
-                    searchResult.addAll(entries.filter{ it.indexOf(lastword) > -1 })
+                    searchResult.addAll(entries.filter { it.indexOf(lastword) > -1 })
                     if (entries.size > 0) {
-                        populatePopup(searchResult,lastword)
+                        populatePopup(searchResult, lastword)
                         if (!entriesPopup.isShowing) {
                             entriesPopup.show(this@AutoCompleteTextField, Side.BOTTOM, 0.0, 0.0)
                         }
                     } else {
                         entriesPopup.hide()
                     }
+                } catch (e: Exception) {
                 }
-                catch(e : Exception){}
             }
         }
 
         focusedProperty().addListener { observableValue, aBoolean, aBoolean2 -> entriesPopup.hide() }
     }
 
-    /**
-     * Populate the entry set with the given search results.  Display is limited to 10 entries, for performance.
-     * @param searchResult The set of matching strings.
-     */
-
-    fun buildTextFlow(text: String, filter: String): TextFlow {
+    private fun buildTextFlow(text: String, filter: String): TextFlow {
         val filterIndex = text.toLowerCase().indexOf(filter.toLowerCase())
         val textBefore = Text(text.substring(0, filterIndex))
         val textAfter = Text(text.substring(filterIndex + filter.length))
-        val textFilter = Text(text.substring(filterIndex, filterIndex + filter.length)) //instead of "filter" to keep all "case sensitive"
+        val textFilter = Text(
+            text.substring(
+                filterIndex,
+                filterIndex + filter.length
+            )
+        ) //instead of "filter" to keep all "case sensitive"
         textFilter.fill = Color.PURPLE
         textFilter.font = Font.font("Helvetica", FontWeight.BOLD, 13.0)
         return TextFlow(textBefore, textFilter, textAfter)
     }
 
-    private fun populatePopup(searchResult: List<String>,searchRequest : String) {
+    private fun populatePopup(searchResult: List<String>, searchRequest: String) {
         val menuItems = LinkedList<CustomMenuItem>()
         // If you'd like more entries, modify this line.
         val maxEntries = 10

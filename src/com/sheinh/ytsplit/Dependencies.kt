@@ -13,70 +13,68 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 
-
-object Dependancies {
-    fun decompress() {
-        if(File("ffmpeg.exe").exists())
+object Dependencies {
+    private fun decompress() {
+        if (File("ffmpeg.exe").exists())
             return
         val fileZip = "ffmpeg.zip"
         val zis = ZipInputStream(FileInputStream(fileZip))
         var zipEntry: ZipEntry? = zis.nextEntry
         while (zipEntry != null) {
             if (zipEntry.name.contains(Regex("ffmpeg\\.exe$"))) {
-                decompressFile(zis, zipEntry)
+                decompressFile(zis)
                 break
             }
             zipEntry = zis.nextEntry
         }
     }
 
-    fun checkDependancies(): Boolean {
+    fun checkDependencies(): Boolean {
         val yt = checkExe("youtube-dl")
         var ffmpeg = checkExe("ffmpeg")
-        if(isWindows){
+        if (isWindows) {
             yt == yt || File("youtube-dl.exe").exists()
             ffmpeg = ffmpeg || File("ffmpeg.exe").exists()
-            if(File("ffmpeg.exe").exists())
+            if (File("ffmpeg.exe").exists())
                 FFMPEG = File("ffmpeg.exe").absolutePath
-            if(yt && ffmpeg){
-                if(File("ffmpeg.zip").exists())
+            if (yt && ffmpeg) {
+                if (File("ffmpeg.zip").exists())
                     File("ffmpeg.zip").delete()
             }
         }
         return yt && ffmpeg
     }
 
-    fun getDependancies(){
+    fun getDependencies() {
         if (!checkExe("ffmpeg") && isWindows) {
             val localFile = File("ffmpeg.exe")
             if (!localFile.exists()) {
-                Dependancies.downloadZip()
-                Dependancies.decompress()
+                Dependencies.downloadZip()
+                Dependencies.decompress()
             }
             FFMPEG = localFile.absolutePath
         }
         if (!checkExe("youtube-dl") && isWindows) {
             val localFile = File("youtube-dl.exe")
             if (!localFile.exists()) {
-                Dependancies.extractYoutubeDL()
+                Dependencies.extractYoutubeDL()
                 YOUTUBE = "youtube-dl.exe"
             }
         }
     }
 
 
-
-    fun checkExe(command : String): Boolean {
-        val filename = if(isWindows) command + ".exe" else command
+    private fun checkExe(command: String): Boolean {
+        val filename = if (isWindows) "$command.exe" else command
         val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
         directories.add(System.getProperty("user.dir"))
-        val paths = directories.map{ Paths.get(it,filename)}
-        val out = paths.find{ Files.exists(it) }
+        val paths = directories.map { Paths.get(it, filename) }
+        val out = paths.find { Files.exists(it) }
         println(out)
         return out != null
     }
 
-    fun decompressFile(zis: ZipInputStream, zipEntry: ZipEntry) {
+    private fun decompressFile(zis: ZipInputStream) {
         val buffer = ByteArray(1024)
         val newFile = File("ffmpeg.exe")
         val fos = FileOutputStream(newFile)
@@ -92,12 +90,12 @@ object Dependancies {
         try {
             if (File("ffmpeg.zip").exists())
                 File("ffmpeg.zip").delete()
-        }finally {
+        } finally {
         }
     }
 
-    fun extractYoutubeDL(){
-        if(File("youtube-dl.exe").exists())
+    private fun extractYoutubeDL() {
+        if (File("youtube-dl.exe").exists())
             return
         val `is` = javaClass.getResource("/youtube-dl.exe").openStream()
         val os = FileOutputStream("youtube-dl.exe")
@@ -113,15 +111,14 @@ object Dependancies {
         os.close()
     }
 
-    fun downloadZip() {
-        System.setProperty("http.agent", "Chrome");
-        data class Link(val filename : String, val date : Date)
-        if(File("ffmpeg.zip").exists())
+    private fun downloadZip() {
+        System.setProperty("http.agent", "Chrome")
+        data class Link(val filename: String, val date: Date)
+        if (File("ffmpeg.zip").exists())
             return
         val url: URL
         var inputStr: InputStream? = null
         val br: BufferedReader
-        var line: String
 
         try {
             url = URL("https://ffmpeg.zeranoe.com/builds/win64/static/")
@@ -137,12 +134,13 @@ object Dependancies {
                 line = br.readLine()
             }
             val out = builder.toString()
-            val matcher = Pattern.compile("a href=\"([^\"]+)\".+<td>(\\d{4}-\\w{3}-\\d{1,2} \\d{2}:\\d{2})").matcher(out)
+            val matcher =
+                Pattern.compile("a href=\"([^\"]+)\".+<td>(\\d{4}-\\w{3}-\\d{1,2} \\d{2}:\\d{2})").matcher(out)
             val links = ArrayList<Link>()
             matcher.find()
-            while(!matcher.hitEnd()){
+            while (!matcher.hitEnd()) {
                 val date = form.parse(matcher.group(2))
-                links += Link(matcher.group(1),date)
+                links += Link(matcher.group(1), date)
                 matcher.find()
             }
             links.sortBy {

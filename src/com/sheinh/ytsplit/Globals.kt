@@ -6,7 +6,7 @@ import java.io.InputStreamReader
 var YOUTUBE = "youtube-dl"
 var FFMPEG = "ffmpeg"
 val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
-internal var WINDOWS_ARGS = if(isWindows) arrayOf("cmd.exe","/c") else emptyArray()
+internal var WINDOWS_ARGS = if (isWindows) arrayOf("cmd.exe", "/c") else emptyArray()
 val Process.input: String
     get() {
         val stringBuilder = StringBuilder()
@@ -31,7 +31,8 @@ val Process.error: String
         bufferedReader.close()
         return stringBuilder.toString()
     }
-fun ProcessBuilder.loadEnv() : ProcessBuilder {
-    environment().put("PATH", System.getenv("PATH"))
+
+fun ProcessBuilder.loadEnv(): ProcessBuilder {
+    environment()["PATH"] = System.getenv("PATH")
     return this
 }

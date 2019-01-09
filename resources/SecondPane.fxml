@@ -14,63 +14,66 @@
 <?import javafx.scene.text.Font?>
 <?import java.net.URL?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="520.0" spacing="10.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:id="secondPaneVBox">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="520.0"
+      spacing="10.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:id="secondPaneVBox">
     <stylesheets>
-        <URL value="@style.css" />
+        <URL value="@style.css"/>
     </stylesheets>
     <padding>
-        <Insets bottom="19.0" left="12.0" right="12.0" top="19.0" />
+        <Insets bottom="19.0" left="12.0" right="12.0" top="19.0"/>
     </padding>
-    <children>
-       <VBox maxHeight="223.0" minHeight="223.0" prefHeight="223.0" spacing="10.0" style="-fx-alignment: center;">
-      <Label text="Album Art">
-            <font>
-               <Font size="13.0" />
-            </font></Label>
-      <ImageView fx:id="albumArt" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" style="-fx-border-style: dotted; -fx-border-color: black; -fx-border-width: 1;" />
-       </VBox>
-        <Label text="Album Name">
-            <font>
-                <Font size="13.0" />
-            </font></Label>
-      <TextField fx:id="albumField" prefWidth="400.0" promptText="Album Name">
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+    <VBox maxHeight="223.0" minHeight="223.0" prefHeight="223.0" spacing="10.0" style="-fx-alignment: center;">
+        <Label text="Album Art">
          <font>
-            <Font size="13.0" />
-         </font></TextField>
-      <TableView fx:id="songsTable" prefHeight="200.0" prefWidth="200.0">
-      </TableView>
-       <Label text="Output" />
-       <HBox spacing="8.0">
-           <TextField fx:id="outputFolderField" prefHeight="29.0" promptText="Output Folder" HBox.hgrow="ALWAYS">
+             <Font size="13.0"/>
+         </font>
+        </Label>
+        <ImageView fx:id="albumArt" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true"
+                   style="-fx-border-style: dotted; -fx-border-color: black; -fx-border-width: 1;"/>
+    </VBox>
+    <Label text="Album Name">
+        <font>
+            <Font size="13.0"/>
+        </font>
+    </Label>
+    <TextField fx:id="albumField" prefWidth="400.0" promptText="Album Name">
+        <font>
+          <Font size="13.0"/>
+        </font>
+    </TextField>
+    <TableView fx:id="songsTable" prefHeight="200.0" prefWidth="200.0">
+    </TableView>
+    <Label text="Output"/>
+    <HBox spacing="8.0">
+        <TextField fx:id="outputFolderField" prefHeight="29.0" promptText="Output Folder" HBox.hgrow="ALWAYS">
+         <font>
+             <Font size="13.0"/>
+         </font>
+        </TextField>
+        <Button fx:id="outputFolderChooserButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false"
+                prefWidth="40.0" text="..."/>
+    </HBox>
+    <HBox spacing="8.0">
+        <TextField fx:id="bitrateField" promptText="Bitrate (Kbps)" HBox.hgrow="ALWAYS">
             <font>
-               <Font size="13.0" />
-            </font></TextField>
-           <Button fx:id="outputFolderChooserButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" prefWidth="40.0" text="..." />
-       </HBox>
-       <HBox spacing="8.0">
-           <children>
-               <TextField fx:id="bitrateField" promptText="Bitrate (Kbps)" HBox.hgrow="ALWAYS">
-               <font>
-                  <Font size="13.0" />
-               </font></TextField>
-               <ComboBox fx:id="formatComboBox" maxHeight="1.7976931348623157E308" prefHeight="19.0" promptText="Format">
-                   <items>
-                       <FXCollections fx:factory="observableArrayList">
-                           <String fx:value=".m4a" />
-                           <String fx:value=".mp3" />
-                       </FXCollections>
-                   </items>
-               </ComboBox>
-           </children>
-       </HBox>
-      <HBox maxWidth="1.7976931348623157E308" spacing="8.0" fx:id="secondPaneBottomBar">
-         <children>
-            <Button fx:id="backButton" mnemonicParsing="false" text="⬅" />
-             <Button fx:id="downloadButton" disable="true" maxWidth="Infinity" mnemonicParsing="false" text="Save Music" HBox.hgrow="ALWAYS" />
-         </children>
-      </HBox>
-   </children>
-   <padding>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-   </padding>
+                <Font size="13.0"/>
+            </font>
+        </TextField>
+        <ComboBox fx:id="formatComboBox" maxHeight="1.7976931348623157E308" prefHeight="19.0" promptText="Format">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value=".m4a"/>
+                    <String fx:value=".mp3"/>
+                </FXCollections>
+            </items>
+        </ComboBox>
+    </HBox>
+    <HBox maxWidth="1.7976931348623157E308" spacing="8.0" fx:id="secondPaneBottomBar">
+        <Button fx:id="backButton" mnemonicParsing="false" text="⬅"/>
+        <Button fx:id="downloadButton" disable="true" maxWidth="Infinity" mnemonicParsing="false" text="Save Music"
+                HBox.hgrow="ALWAYS"/>
+    </HBox>
 </VBox>
