@@ -1,10 +1,13 @@
 package com.sheinh.ytsplit
 
 import javafx.application.Platform
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
 import javafx.fxml.FXML
+import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
+import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.control.cell.TextFieldTableCell
@@ -16,6 +19,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
+import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.util.Callback
 import javafx.util.converter.DefaultStringConverter
@@ -92,6 +96,28 @@ class Controller(val stage : Stage){
     @FXML
     private fun initialize(){
     }
+    class MyDialog : Stage(){
+        val taskDone = SimpleBooleanProperty(false)
+        init {
+            setOnCloseRequest { if(!taskDone.value) it.consume() }
+        }
+    }
+    fun showLoadingDialog(task: () -> Unit){
+        val dialog = MyDialog()
+        dialog.initOwner(stage)
+        dialog.initModality(Modality.APPLICATION_MODAL)
+        val node = FXMLLoader(javaClass.getResource("/Setup.fxml")).load<Any>()
+        dialog.scene = Scene(node as Parent)
+        dialog.show()
+        thread.submit{
+            try {
+                task()
+                dialog.taskDone.value = true
+                Platform.runLater { dialog.close() }
+            }finally{
+            }
+        }
+    }
     internal fun firstPaneInit(){
         getDescriptionButton.setOnAction { handleDescriptionButton() }
         regexButton.setOnAction { handleRegexButton() }
@@ -125,6 +151,11 @@ class Controller(val stage : Stage){
         }
     }
     internal fun secondPaneInit() {
+        if(!Dependancies.checkDependancies() && isWindows){
+            showLoadingDialog {
+                Dependancies.getDependancies()
+            }
+        }
         outputFolderChooserButton.setOnAction{ handleFolderChoose() }
         downloadButton.setOnAction { handleDownloadButton() }
         outputFolderField.textProperty().addListener { _, _, _ -> updateDownloadButton() }

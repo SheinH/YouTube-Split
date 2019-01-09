@@ -12,8 +12,6 @@ import javafx.stage.Stage
 class MainApp : Application() {
     lateinit var controller: Controller
     override fun start(stage: Stage) {
-        if(!Dependancies.checkDependancies() && isWindows)
-            Dependancies.getDependancies(stage)
         controller = Controller(stage)
         var fxmlLoader = FXMLLoader(javaClass.getResource("/FirstPane.fxml"))
         fxmlLoader.setController(controller)
@@ -23,13 +21,15 @@ class MainApp : Application() {
         stage.title = "YouTube Split"
         stage.scene = Scene(root)
         stage.scene.stylesheets.add("style.css")
-        stage.isResizable = false;
+        stage.isResizable = false
         stage.show()
         fxmlLoader = FXMLLoader(javaClass.getResource("/SecondPane.fxml"))
         fxmlLoader.setController(controller)
         root = fxmlLoader.load<Any>() as Parent
         controller.secondPane = root
         controller.secondPaneInit()
+    }
+    fun startMainApp(stage: Stage){
     }
 }
 

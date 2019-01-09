@@ -11,7 +11,6 @@ import java.net.URL
 import java.nio.channels.Channels
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.regex.Pattern
 
 
@@ -96,7 +95,7 @@ class YouTubeDL {
             val outFileName = String.format("%02d", it.trackNo) + ". ${it.artist} - ${it.song}.${ext}"
             val command = ArrayList<String>(10)
             command.addAll(WINDOWS_ARGS)
-            command.addAll(listOf("ffmpeg","-i",audioFile.toString()))
+            command.addAll(listOf(FFMPEG,"-i",audioFile.toString()))
             command.addAll(listOf("-metadata","ARTIST=\"me\""))
             encodingParameters.forEach { command.add(it) }
             command.addAll(listOf("-ss",it.timestamp.toString()))

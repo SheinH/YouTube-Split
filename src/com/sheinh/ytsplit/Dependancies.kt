@@ -1,10 +1,5 @@
 package com.sheinh.ytsplit
 
-import javafx.fxml.FXML
-import javafx.fxml.FXMLLoader
-import javafx.scene.Parent
-import javafx.scene.Scene
-import javafx.stage.Stage
 import java.io.*
 import java.net.MalformedURLException
 import java.net.URL
@@ -29,6 +24,7 @@ object Dependancies {
         while (zipEntry != null) {
             if (zipEntry.name.contains(Regex("ffmpeg\\.exe$"))) {
                 decompressFile(zis, zipEntry)
+                break
             }
             zipEntry = zis.nextEntry
         }
@@ -36,36 +32,36 @@ object Dependancies {
 
     fun checkDependancies(): Boolean {
         val yt = checkExe("youtube-dl")
-        var ffmpeg = checkExe("")
+        var ffmpeg = checkExe("ffmpeg")
         if(isWindows){
             yt == yt || File("youtube-dl.exe").exists()
             ffmpeg = ffmpeg || File("ffmpeg.exe").exists()
+            if(File("ffmpeg.exe").exists())
+                FFMPEG = File("ffmpeg.exe").absolutePath
+            if(yt && ffmpeg){
+                if(File("ffmpeg.zip").exists())
+                    File("ffmpeg.zip").delete()
+            }
         }
         return yt && ffmpeg
     }
 
-    fun getDependancies(stage : Stage){
-        var fxmlLoader = FXMLLoader(javaClass.getResource("/Setup.fxml"))
-        var root = fxmlLoader.load<Any>() as Parent
-        stage.title = "Setup"
-        stage.scene = Scene(root)
-        stage.isResizable = false;
-        stage.show()
-
-        if(!checkExe("ffmpeg") && isWindows) {
+    fun getDependancies(){
+        if (!checkExe("ffmpeg") && isWindows) {
             val localFile = File("ffmpeg.exe")
-            if(!localFile.exists()){
+            if (!localFile.exists()) {
                 Dependancies.downloadZip()
                 Dependancies.decompress()
             }
-            FFMPEG = localFile.toString()
+            FFMPEG = localFile.absolutePath
         }
-        if(!checkExe("youtube-dl") && isWindows){
-            Dependancies.extractYoutubeDL()
-            YOUTUBE = "youtube-dl.exe"
+        if (!checkExe("youtube-dl") && isWindows) {
+            val localFile = File("youtube-dl.exe")
+            if (!localFile.exists()) {
+                Dependancies.extractYoutubeDL()
+                YOUTUBE = "youtube-dl.exe"
+            }
         }
-
-        stage.hide()
     }
 
 
@@ -91,18 +87,20 @@ object Dependancies {
             len = zis.read(buffer)
         }
         fos.close()
-        val zip = File("ffmpeg.zip").toPath()
-        Files.deleteIfExists(zip)
+        zis.closeEntry()
+        zis.close()
+        try {
+            if (File("ffmpeg.zip").exists())
+                File("ffmpeg.zip").delete()
+        }finally {
+        }
     }
 
     fun extractYoutubeDL(){
         if(File("youtube-dl.exe").exists())
             return
         val `is` = javaClass.getResource("/youtube-dl.exe").openStream()
-//sets the output stream to a system folder
         val os = FileOutputStream("youtube-dl.exe")
-
-//2048 here is just my preference
         val b = ByteArray(2048)
         var length: Int
         length = `is`.read(b)
@@ -116,6 +114,7 @@ object Dependancies {
     }
 
     fun downloadZip() {
+        System.setProperty("http.agent", "Chrome");
         data class Link(val filename : String, val date : Date)
         if(File("ffmpeg.zip").exists())
             return
