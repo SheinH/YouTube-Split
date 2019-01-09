@@ -8,8 +8,8 @@ import javafx.stage.Stage
 
 
 class MainApp : Application() {
-    private lateinit var controller: Controller
-    override fun start(stage: Stage) {
+    private lateinit var controller : Controller
+    override fun start(stage : Stage) {
         controller = Controller(stage)
         var fxmlLoader = FXMLLoader(javaClass.getResource("/FirstPane.fxml"))
         fxmlLoader.setController(controller)
@@ -29,6 +29,6 @@ class MainApp : Application() {
     }
 }
 
-fun main(args: Array<String>) {
+fun main(args : Array<String>) {
     Application.launch(MainApp::class.java, *args)
 }
