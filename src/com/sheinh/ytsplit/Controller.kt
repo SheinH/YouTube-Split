@@ -2,29 +2,31 @@ package com.sheinh.ytsplit
 
 import javafx.application.Platform
 import javafx.collections.FXCollections
+import javafx.event.EventHandler
 import javafx.fxml.FXML
-import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.control.cell.TextFieldTableCell
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.input.KeyCode
 import javafx.scene.input.TransferMode
-import javafx.scene.layout.Pane
+import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.stage.DirectoryChooser
+import javafx.stage.FileChooser
 import javafx.stage.Stage
 import javafx.util.Callback
-import javafx.util.StringConverter
 import javafx.util.converter.DefaultStringConverter
 import javafx.util.converter.IntegerStringConverter
-import javafx.util.converter.NumberStringConverter
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.Executors
+import java.util.regex.Pattern
 
 class Controller(val stage : Stage){
 
@@ -46,7 +48,9 @@ class Controller(val stage : Stage){
     @FXML
     private lateinit var regexButton : Button
     @FXML
-    private lateinit var regexField : TextField
+    private lateinit var backButton : Button
+    @FXML
+    private lateinit var regexField : AutoCompleteTextField
     @FXML
     private lateinit var albumField : TextField
     @FXML
@@ -57,12 +61,12 @@ class Controller(val stage : Stage){
     private lateinit var songsTable : TableView<Song>
     @FXML
     private lateinit var albumArt : ImageView
+    @FXML
+    private lateinit var secondPaneBottomBar : HBox
+    @FXML
+    private lateinit var secondPaneVBox: VBox
 
-    private var albumArtImage : Image
-    get() = albumArt.image
-    set(value) {
-        albumArt.image = value
-    }
+    private var progressBar = ProgressBar()
 
     internal lateinit var firstPane : Parent
     internal lateinit var secondPane : Parent
@@ -71,33 +75,6 @@ class Controller(val stage : Stage){
     private var songs = ArrayList<Song>()
     private val outputFolderChooser = DirectoryChooser()
     private val thread = Executors.newSingleThreadExecutor()
-
-    private var tableViewShown : Boolean = false
-    set(value){
-        if(value == tableViewShown)
-            return
-        field = value
-        updateDownloadButton()
-        if(value){
-            getDescriptionButton.disableProperty().value = true;
-            urlField.editableProperty().value = false;
-            regexField.disableProperty().value = true;
-            mainVBox.children.removeAt(5)
-            mainVBox.children.add(5,songsTable)
-            regexButton.text="⬅"
-            stage.sizeToScene()
-        }
-        else{
-            getDescriptionButton.disableProperty().value = false;
-            urlField.editableProperty().value = true;
-            regexField.disableProperty().value = false;
-            val index = mainVBox.children.indexOf(songsTable)
-            mainVBox.children.remove(songsTable)
-            mainVBox.children.add(index,descriptionBox)
-            regexButton.text="➡"
-            stage.sizeToScene()
-        }
-    }
 
     private val album get() = albumField.text
     private val outputDirectory get() = Path.of(outputFolderField.text)
@@ -108,11 +85,9 @@ class Controller(val stage : Stage){
     }
 
     init{
-    }
-    private fun loadSecondPane() {
-        stage.scene.root = secondPane
-        stage.sizeToScene()
-        secondPaneInit()
+        progressBar.maxHeight = Double.MAX_VALUE
+        progressBar.maxWidth = Double.MAX_VALUE
+        progressBar.progress = 0.0
     }
     @FXML
     private fun initialize(){
@@ -120,17 +95,49 @@ class Controller(val stage : Stage){
     internal fun firstPaneInit(){
         getDescriptionButton.setOnAction { handleDescriptionButton() }
         regexButton.setOnAction { handleRegexButton() }
+        urlField.setOnKeyPressed {
+            if(it.code == KeyCode.ENTER){
+                getDescriptionButton.fire()
+            }
+        }
+        regexField.entries.addAll(listOf("{ARTIST}", "{TIME}", "{SONG}"))
+        regexField.setOnKeyPressed {
+            if(it.code == KeyCode.ENTER){
+                regexButton.fire()
+            }
+        }
+    }
+
+    fun setupAutoComplete(){
+        val suggestions = TreeSet<String>()
+        val popup = ContextMenu()
+        regexField.textProperty().addListener{_, _, new ->
+            if(regexField.text.isEmpty())
+                popup.hide()
+            else{
+                val matcher = Pattern.compile("\\s(\\S)+\$").matcher(regexField.text)
+                val lastword = matcher.group(1)
+                val results = suggestions.subSet(regexField.text,regexField.text + Character.MAX_VALUE)
+                if(!results.isEmpty()){
+
+                }
+            }
+        }
     }
     internal fun secondPaneInit() {
-        albumField.text = youtubeDL.getProperty("title")
         outputFolderChooserButton.setOnAction{ handleFolderChoose() }
         downloadButton.setOnAction { handleDownloadButton() }
         outputFolderField.textProperty().addListener { _, _, _ -> updateDownloadButton() }
         bitrateField.textProperty().addListener { _, _, _ -> updateDownloadButton() }
         formatComboBox.selectionModelProperty().addListener{_, _,_ -> updateDownloadButton() }
-        youtubeDL.fetchAlbumArt()
-        albumArt.image = Image(youtubeDL.albumArt.toUri().toString(),200.0,200.0,true,true)
-
+        formatComboBox.selectionModel.selectedItemProperty().addListener{ _, _, _ -> updateDownloadButton() }
+        backButton.setOnAction { firstPaneSwitch() }
+        youtubeDL.albumArtProperty.addListener{_,_,new ->
+            if(new == null)
+                return@addListener
+            val image = Image(new.toUri().toString(),200.0,200.0,false,true)
+            albumArt.image = image
+        }
         albumArt.setOnDragOver {
             if (it.gestureSource != albumArt
                     && it.getDragboard().hasFiles()) {
@@ -146,10 +153,7 @@ class Controller(val stage : Stage){
                     if(db.files.size == 1){
                         val fil = db.files[0]
                         try{
-                            val img = Image(fil.toURI().toString(),200.0,200.0,true,true)
-                            albumArtImage = img
                             youtubeDL.albumArt = fil.toPath()
-                            success = true
                         }
                         catch(e : Exception){ }
                     }
@@ -158,8 +162,16 @@ class Controller(val stage : Stage){
 
                 it.consume()
         }
+        albumArt.setOnMouseClicked { if(it.isPrimaryButtonDown) handleAlbumArtChange() }
+        val menu = ContextMenu()
+        val items = arrayOf(MenuItem("Set Album Art"),MenuItem("Restore Default Art"))
+        items[0].setOnAction { handleAlbumArtChange() }
+        items[1].setOnAction { youtubeDL.setDefaultArt() }
+        menu.items.addAll(items)
+        albumArt.onContextMenuRequested = EventHandler{
+            menu.show(albumArt,it.screenX,it.screenY)
+        }
 
-        formatComboBox.selectionModel.selectedItemProperty().addListener{ _, _, _ -> updateDownloadButton() }
         songsTable.columns.clear()
         val track = TableColumn<Song,Int>("#")
         track.cellFactory = Callback<TableColumn<Song, Int>, TableCell<Song, Int>> { TextFieldTableCell<Song, Int>(IntegerStringConverter()) }
@@ -186,23 +198,96 @@ class Controller(val stage : Stage){
         songsTable.editableProperty().value = true;
         songsTable.columns.addAll(track,song,artist)
     }
+
+    private fun handleAlbumArtChange() {
+        val fc = FileChooser()
+        fc.extensionFilters.add(FileChooser.ExtensionFilter("Image Files","*.jpg","*.jpeg","*.png","*.bmp","*.tiff","*.gif"))
+        fc.title = "Select Album Art"
+        val newImg = fc.showOpenDialog(stage)
+        if(newImg == null)
+            return
+        youtubeDL.albumArt = newImg.toPath()
+    }
+
+    internal fun secondPaneSwitch(){
+        songsTable.items = FXCollections.observableList(songs)
+        albumField.text = youtubeDL.getProperty("title")
+        stage.scene.root = secondPane
+        stage.sizeToScene()
+    }
+    internal fun firstPaneSwitch(){
+        urlField.text = youtubeDL.url
+        songsTable.items.clear()
+        albumField.text = ""
+        bitrateField.text = ""
+        formatComboBox.selectionModel.clearSelection()
+        stage.scene.root = firstPane
+        stage.sizeToScene()
+    }
+    private var progressBarShown = false
+    set(value){
+        if(field == value)
+            return
+        if(value){
+            val index = secondPaneVBox.children.indexOf(secondPaneBottomBar)
+            secondPaneVBox.children.removeAt(index)
+            secondPaneVBox.children.add(progressBar)
+        }
+        else{
+            val index = secondPaneVBox.children.indexOf(progressBar)
+            secondPaneVBox.children.removeAt(index)
+            secondPaneVBox.children.add(secondPaneBottomBar)
+        }
+        field = value
+    }
     private fun handleFolderChoose(){
         var folder : File? = outputFolderChooser.showDialog(stage)
         outputFolderField.text = folder?.absolutePath
     }
     private fun handleDownloadButton(){
         try {
-            songs.forEach{ it.album = album }
             outputFolderField.disableProperty().value = true
-            youtubeDL.download()
+            songsTable.disableProperty().value = true
+            albumField.disableProperty().value = true
+            bitrateField.disableProperty().value = true
+            formatComboBox.disableProperty().value = true
+            outputFolderChooserButton.disableProperty().value = true
+            songs.forEach{ it.album = album }
+            val numTasks = (songs.size + 1).toDouble()
+            var tasksCompleted = 0
+            val addProgress = {Platform.runLater{
+                tasksCompleted++
+                progressBar.progress = tasksCompleted/numTasks
+            }}
+            progressBarShown = true
             var directory = outputDirectory.resolve(album)
             if(!Files.exists(directory))
                 Files.createDirectories(directory)
-            youtubeDL.save(directory,codec,bitrateField.text.toInt(),songs)
+            thread.submit{
+                try {
+                    youtubeDL.download()
+                    Platform.runLater{ addProgress() }
+                    youtubeDL.save(directory, codec, bitrateField.text.toInt(), songs, addProgress)
+                    progressBarShown = false
+                }finally{
+                    outputFolderField.disableProperty().value = false
+                    songsTable.disableProperty().value = false
+                    albumField.disableProperty().value = false
+                    bitrateField.disableProperty().value = false
+                    formatComboBox.disableProperty().value = false
+                    outputFolderChooserButton.disableProperty().value = false
+                    Platform.runLater{ progressBarShown = false }
+                }
+            }
         }
-        catch(e : FileNotFoundException){}
-        finally{
+        catch(e : FileNotFoundException){
             outputFolderField.disableProperty().value = false
+            songsTable.disableProperty().value = false
+            albumField.disableProperty().value = false
+            bitrateField.disableProperty().value = false
+            formatComboBox.disableProperty().value = false
+            outputFolderChooserButton.disableProperty().value = false
+            progressBarShown = false
         }
     }
     private fun updateDownloadButton(){
@@ -226,26 +311,49 @@ class Controller(val stage : Stage){
         }
     }
     private fun handleDescriptionButton(){
+        if(getDescriptionButton.graphic != null)
+            return
+        regexField.requestFocus()
+        descriptionBox.disableProperty().value = true
+        regexButton.disableProperty().value = true
+        val oldtext = getDescriptionButton.text
+        getDescriptionButton.text = ""
+        val indicator = ProgressIndicator()
+        indicator.maxHeight = 20.0
+        indicator.maxWidth = 20.0
+        getDescriptionButton.graphic = indicator
         thread.submit{
-            youtubeDL.url = urlField.text
-            youtubeDL.loadJsonData()
-            val description = youtubeDL.getProperty("description")
-            descriptionBox.text = description
+            try {
+                youtubeDL.url = urlField.text
+                youtubeDL.loadJsonData()
+                val description = youtubeDL.getProperty("description")
+                descriptionBox.text = description
+                regexButton.disableProperty().value = false
+            }
+            finally{
+                descriptionBox.disableProperty().value = false
+                regexButton.disableProperty().value = false
+                getDescriptionButton.disableProperty().value = false
+                Platform.runLater {
+                    getDescriptionButton.text = oldtext
+                    getDescriptionButton.graphic = null
+                }
+            }
+        }
+        thread.submit{
+            youtubeDL.fetchAlbumArt()
         }
     }
     private fun handleRegexButton(){
-        if(!tableViewShown) {
             try {
                 val pattern = RegexStuff.inputToRegex(regexField.text)
                 val matcher = pattern.matcher(descriptionBox.text + System.lineSeparator())
                 songs = RegexStuff.matchSongs(matcher)
-                songsTable.items = FXCollections.observableList(songs)
-                loadSecondPane()
+                secondPaneSwitch()
             }
             catch(e : Exception){
                 e.printStackTrace()
                 return
             }
-        }
     }
 }

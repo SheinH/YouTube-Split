@@ -1,0 +1,17 @@
+.label{
+-fx-font-size : 13
+}
+ combo-box-base
+ {
+     -fx-font-size : 13
+ }
+ .progress::-webkit-progress-value {
+   transition: width 0.5s ease;
+ }
+.warning {
+    -fx-background-color: #FF000055;
+}
+
+.success {
+    -fx-background-color: #00FF0055;
+}

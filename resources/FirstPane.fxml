@@ -10,26 +10,49 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import java.net.URL?>
+<?import com.sheinh.ytsplit.AutoCompleteTextField?>
 <VBox fx:id="mainVBox" spacing="5.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <stylesheets>
+      <URL value="@style.css" />
+   </stylesheets>
    <padding>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+      <Insets bottom="19.0" left="12.0" right="12.0" top="19.0" />
    </padding>
-   <Label text="YouTube URL" />
-    <HBox>
-        <TextField fx:id="urlField" promptText="URL" HBox.hgrow="ALWAYS" />
-        <Button fx:id="getDescriptionButton" mnemonicParsing="false" prefWidth="30.0" text="⬇" />
+   <Label text="YouTube URL">
+      <font>
+         <Font size="13.0" />
+      </font></Label>
+    <HBox spacing="8.0">
+        <TextField fx:id="urlField" minHeight="22.0" promptText="URL" HBox.hgrow="ALWAYS">
+         <font>
+            <Font size="13.0" />
+         </font></TextField>
+        <Button fx:id="getDescriptionButton" focusTraversable="false" maxHeight="29.0" minWidth="40.0" mnemonicParsing="false" text="⬇">
+         <HBox.margin>
+            <Insets />
+         </HBox.margin></Button>
     </HBox>
-   <Label fx:id="descriptionLabel" text="Description" />
+   <Label fx:id="descriptionLabel" text="Description">
+      <font>
+         <Font size="13.0" />
+      </font></Label>
    <TextArea fx:id="descriptionBox" focusTraversable="false" prefHeight="300" prefWidth="500">
       <font>
          <Font name="Monospaced Regular" size="13.0" />
       </font></TextArea>
-   <Label text="Regular Expression" />
-   <HBox>
-      <TextField fx:id="regexField" promptText="Regex" HBox.hgrow="ALWAYS">
+   <Label text="Pattern">
+      <font>
+         <Font size="13.0" />
+      </font></Label>
+   <HBox spacing="8.0">
+      <AutoCompleteTextField fx:id="regexField" minHeight="22.0" promptText="Pattern" HBox.hgrow="ALWAYS">
          <tooltip>
-            <Tooltip text="Ex: &quot;{TIMESTAMP} {SONG} - {ARTIST}&quot; matches &quot;2:02 Snail Mail - Heat Wave&quot;" />
-         </tooltip></TextField>
-      <Button fx:id="regexButton" mnemonicParsing="false" prefWidth="30.0" text="➡" />
+            <Tooltip text="Ex: &quot;{TIME} {SONG} - {ARTIST}&quot; matches &quot;2:02 Snail Mail - Heat Wave&quot;" />
+         </tooltip>
+         <font>
+            <Font size="13.0" />
+         </font></AutoCompleteTextField>
+      <Button fx:id="regexButton" disable="true" focusTraversable="false" maxHeight="1.7976931348623157E308" mnemonicParsing="false" prefWidth="40.0" text="➡" />
    </HBox>
 </VBox>

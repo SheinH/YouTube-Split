@@ -2,9 +2,9 @@ package com.sheinh.ytsplit
 
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.lang.StringBuilder
 
 val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+internal var WINDOWS_ARGS = if(isWindows) arrayOf("cmd.exe","/c") else emptyArray()
 val Process.input: String
     get() {
         val stringBuilder = StringBuilder()

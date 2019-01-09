@@ -1,10 +1,11 @@
 package com.sheinh.ytsplit
 
 import javafx.application.Application
+import javafx.fxml.FXMLLoader
+import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.stage.Stage
-import javafx.scene.Parent
-import javafx.fxml.FXMLLoader
+
 
 
 
@@ -19,12 +20,14 @@ class MainApp : Application() {
         controller.firstPane = root
         stage.title = "YouTube Split"
         stage.scene = Scene(root)
+        stage.scene.stylesheets.add("style.css")
         stage.isResizable = false;
         stage.show()
         fxmlLoader = FXMLLoader(javaClass.getResource("/SecondPane.fxml"))
         fxmlLoader.setController(controller)
         root = fxmlLoader.load<Any>() as Parent
         controller.secondPane = root
+        controller.secondPaneInit()
     }
 }
 

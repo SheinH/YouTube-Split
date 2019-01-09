@@ -2,14 +2,16 @@ package com.sheinh.ytsplit
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import javafx.beans.property.SimpleObjectProperty
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.File
-import java.net.URL
-import java.nio.file.Path
 import java.io.FileOutputStream
+import java.net.URL
 import java.nio.channels.Channels
 import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.regex.Pattern
 
 
@@ -18,9 +20,13 @@ class YouTubeDL {
     lateinit var json: JsonObject
     lateinit var audioFile : Path
     lateinit var outputFiles : HashMap<Song,Path>
-    lateinit var albumArt : Path
-    private val YOUTUBE get() = "youtube-dl"
-    private val WINDOWS_ARGS = if(isWindows) arrayOf("cmd.exe","/c") else arrayOf()
+    val albumArtProperty = SimpleObjectProperty<Path>()
+    var albumArt
+    get() = albumArtProperty.value
+    set(value){ albumArtProperty.value = value }
+    private lateinit var albumArtDefault : Path
+    private var YOUTUBE : String
+    private var FFMPEG : String
     val acodec : String
     get(){
         val acd = getProperty("acodec")
@@ -32,15 +38,34 @@ class YouTubeDL {
         }
     }
 
+    init{
+        YOUTUBE = "youtube-dl"
+        FFMPEG = "ffmpeg"
+        if(!checkExe("ffmpeg") && isWindows) {
+            val localFile = File("ffmpeg.exe")
+            if(!localFile.exists()){
+                Dependancies.downloadZip()
+                Dependancies.decompress()
+            }
+            FFMPEG = localFile.toString()
+        }
+        if(!checkExe("youtube-dl") && isWindows){
+            Dependancies.extractYoutubeDL()
+            YOUTUBE = "youtube-dl.exe"
+        }
+        println("FFMPEG: ${FFMPEG}")
+        println("YOUTUBE-DL: ${YOUTUBE}")
+    }
+
     fun loadJsonData(){
         val pb = ProcessBuilder().loadEnv()
         pb.command(*WINDOWS_ARGS,YOUTUBE, "-J","-f","bestaudio",url)
         val process = pb.start()
         val input = process.input
         process.waitFor()
-        println(input)
         json = JsonParser().parse(input).asJsonObject
     }
+
 
     fun getProperty(property : String) : String? = json.get(property).asString
 
@@ -54,6 +79,11 @@ class YouTubeDL {
         val fos = FileOutputStream(thumbnailFile)
         fos.channel.transferFrom(rbc, 0, java.lang.Long.MAX_VALUE)
         albumArt = thumbnailFile.toPath()
+        albumArtDefault = thumbnailFile.toPath()
+    }
+
+    fun setDefaultArt(){
+        albumArt = albumArtDefault
     }
 
     fun download(){
@@ -77,7 +107,7 @@ class YouTubeDL {
         }
     }
 
-    fun save(directory : Path, encoding : String, bitrate : Int, songs : List<Song>){
+    fun save(directory : Path, encoding : String, bitrate : Int, songs : List<Song>, updater : () -> Unit){
         val encodingParameters = when(encoding){
             "opus" -> listOf("-b:a",bitrate.toString() + "k","-c:a","libopus")
             else -> listOf("-b:a",bitrate.toString() + "k")
@@ -104,6 +134,17 @@ class YouTubeDL {
             println(proc.error)
             outputFiles[it] = directory.resolve(outFileName)
             writeTag(it)
+            updater()
         }
+    }
+
+    fun checkExe(command : String): Boolean {
+        val filename = if(isWindows) command + ".exe" else command
+        val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
+        directories.add(System.getProperty("user.dir"))
+        val paths = directories.map{ Paths.get(it,filename)}
+        val out = paths.find{ Files.exists(it) }
+        println(out)
+        return out != null
     }
 }

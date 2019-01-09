@@ -5,10 +5,8 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import org.jaudiotagger.audio.AudioFile
 import org.jaudiotagger.tag.FieldKey
-import java.lang.IllegalArgumentException
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import java.util.regex.PatternSyntaxException
 
 
 data class Timestamp(val hours : Int = 0, val minutes : Int = 0, val seconds : Int = 0) : Comparable<Timestamp> {
@@ -79,7 +77,6 @@ internal object RegexStuff{
         string = string.replace("{ARTIST}", artistRegex)
         string = string.replace("{SONG}", songRegex)
         string = string.replace("{TIME}", timestampRegex)
-        println(string)
         return Pattern.compile(string)
     }
 
@@ -119,6 +116,8 @@ internal object RegexStuff{
             list.add(Song(song,artist,stringToTimestamp(timestampString)))
             matcher.find()
         }
+        if(list.isEmpty())
+            throw IllegalArgumentException("Bad user regex")
         list.sort()
         markEndTimes(list)
         for((i,s) in list.withIndex())
