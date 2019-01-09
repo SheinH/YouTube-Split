@@ -25,8 +25,6 @@ class YouTubeDL {
     get() = albumArtProperty.value
     set(value){ albumArtProperty.value = value }
     private lateinit var albumArtDefault : Path
-    private var YOUTUBE : String
-    private var FFMPEG : String
     val acodec : String
     get(){
         val acd = getProperty("acodec")
@@ -38,25 +36,6 @@ class YouTubeDL {
         }
     }
 
-    init{
-        YOUTUBE = "youtube-dl"
-        FFMPEG = "ffmpeg"
-        if(!checkExe("ffmpeg") && isWindows) {
-            val localFile = File("ffmpeg.exe")
-            if(!localFile.exists()){
-                Dependancies.downloadZip()
-                Dependancies.decompress()
-            }
-            FFMPEG = localFile.toString()
-        }
-        if(!checkExe("youtube-dl") && isWindows){
-            Dependancies.extractYoutubeDL()
-            YOUTUBE = "youtube-dl.exe"
-        }
-        println("FFMPEG: ${FFMPEG}")
-        println("YOUTUBE-DL: ${YOUTUBE}")
-    }
-
     fun loadJsonData(){
         val pb = ProcessBuilder().loadEnv()
         pb.command(*WINDOWS_ARGS,YOUTUBE, "-J","-f","bestaudio",url)
@@ -65,7 +44,6 @@ class YouTubeDL {
         process.waitFor()
         json = JsonParser().parse(input).asJsonObject
     }
-
 
     fun getProperty(property : String) : String? = json.get(property).asString
 
@@ -136,15 +114,5 @@ class YouTubeDL {
             writeTag(it)
             updater()
         }
-    }
-
-    fun checkExe(command : String): Boolean {
-        val filename = if(isWindows) command + ".exe" else command
-        val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
-        directories.add(System.getProperty("user.dir"))
-        val paths = directories.map{ Paths.get(it,filename)}
-        val out = paths.find{ Files.exists(it) }
-        println(out)
-        return out != null
     }
 }

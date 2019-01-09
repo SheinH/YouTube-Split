@@ -3,6 +3,8 @@ package com.sheinh.ytsplit
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
+var YOUTUBE = "youtube-dl"
+var FFMPEG = "ffmpeg"
 val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
 internal var WINDOWS_ARGS = if(isWindows) arrayOf("cmd.exe","/c") else emptyArray()
 val Process.input: String

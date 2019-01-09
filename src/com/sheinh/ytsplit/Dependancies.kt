@@ -1,10 +1,16 @@
 package com.sheinh.ytsplit
 
+import javafx.fxml.FXML
+import javafx.fxml.FXMLLoader
+import javafx.scene.Parent
+import javafx.scene.Scene
+import javafx.stage.Stage
 import java.io.*
 import java.net.MalformedURLException
 import java.net.URL
 import java.nio.channels.Channels
 import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.regex.Pattern
@@ -26,6 +32,52 @@ object Dependancies {
             }
             zipEntry = zis.nextEntry
         }
+    }
+
+    fun checkDependancies(): Boolean {
+        val yt = checkExe("youtube-dl")
+        var ffmpeg = checkExe("")
+        if(isWindows){
+            yt == yt || File("youtube-dl.exe").exists()
+            ffmpeg = ffmpeg || File("ffmpeg.exe").exists()
+        }
+        return yt && ffmpeg
+    }
+
+    fun getDependancies(stage : Stage){
+        var fxmlLoader = FXMLLoader(javaClass.getResource("/Setup.fxml"))
+        var root = fxmlLoader.load<Any>() as Parent
+        stage.title = "Setup"
+        stage.scene = Scene(root)
+        stage.isResizable = false;
+        stage.show()
+
+        if(!checkExe("ffmpeg") && isWindows) {
+            val localFile = File("ffmpeg.exe")
+            if(!localFile.exists()){
+                Dependancies.downloadZip()
+                Dependancies.decompress()
+            }
+            FFMPEG = localFile.toString()
+        }
+        if(!checkExe("youtube-dl") && isWindows){
+            Dependancies.extractYoutubeDL()
+            YOUTUBE = "youtube-dl.exe"
+        }
+
+        stage.hide()
+    }
+
+
+
+    fun checkExe(command : String): Boolean {
+        val filename = if(isWindows) command + ".exe" else command
+        val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
+        directories.add(System.getProperty("user.dir"))
+        val paths = directories.map{ Paths.get(it,filename)}
+        val out = paths.find{ Files.exists(it) }
+        println(out)
+        return out != null
     }
 
     fun decompressFile(zis: ZipInputStream, zipEntry: ZipEntry) {

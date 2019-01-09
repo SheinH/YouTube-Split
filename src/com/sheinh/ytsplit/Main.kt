@@ -12,6 +12,8 @@ import javafx.stage.Stage
 class MainApp : Application() {
     lateinit var controller: Controller
     override fun start(stage: Stage) {
+        if(!Dependancies.checkDependancies() && isWindows)
+            Dependancies.getDependancies(stage)
         controller = Controller(stage)
         var fxmlLoader = FXMLLoader(javaClass.getResource("/FirstPane.fxml"))
         fxmlLoader.setController(controller)
