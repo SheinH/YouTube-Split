@@ -98,6 +98,14 @@ class Controller(private val stage : Stage) {
 		}
 	}
 
+	fun getDependanciesWin() {
+		if (!Dependencies.checkDependencies() && isWindows) {
+			showLoadingDialog {
+				Dependencies.getDependencies()
+			}
+		}
+	}
+
 	private fun showLoadingDialog(task : () -> Unit) {
 		val dialog = MyDialog()
 		dialog.initOwner(stage)
@@ -112,7 +120,18 @@ class Controller(private val stage : Stage) {
 				task()
 				dialog.taskDone.value = true
 				Platform.runLater { dialog.close() }
-			} finally {
+			} catch (e : Exception) {
+				val errorDialog = Alert(Alert.AlertType.ERROR)
+				errorDialog.headerText = null
+				errorDialog.title = "Error"
+				errorDialog.headerText = "Download failed"
+				errorDialog.contentText = "Try again Later"
+				errorDialog.width = 220.0
+				errorDialog.showAndWait()
+				Platform.runLater {
+					dialog.close()
+					stage.close()
+				}
 			}
 		}
 	}
@@ -134,11 +153,81 @@ class Controller(private val stage : Stage) {
 	}
 
 	fun secondPaneInit() {
-		if (!Dependencies.checkDependencies() && isWindows) {
-			showLoadingDialog {
-				Dependencies.getDependencies()
+		fun initAlbumArt() {
+			albumArt.setOnDragOver {
+				if (it.gestureSource != albumArt && it.dragboard.hasFiles()) {
+					/* allow for both copying and moving, whatever user chooses */
+					it.acceptTransferModes(*TransferMode.COPY_OR_MOVE)
+				}
+				it.consume()
+			}
+			albumArt.setOnDragDropped {
+				val db = it.dragboard
+				val success = false
+				if (db.hasFiles()) {
+					if (db.files.size == 1) {
+						val fil = db.files[0]
+						try {
+							youtubeDL.albumArt = fil.toPath()
+						} catch (e : Exception) {
+						}
+					}
+				}
+				it.isDropCompleted = success
+
+				it.consume()
+			}
+			albumArt.setOnMouseClicked { if (it.isPrimaryButtonDown) handleAlbumArtChange() }
+			val menu = ContextMenu()
+			val items = arrayOf(MenuItem("Set Album Art"), MenuItem("Restore Default Art"))
+			items[0].setOnAction { handleAlbumArtChange() }
+			items[1].setOnAction { youtubeDL.setDefaultArt() }
+			menu.items.addAll(items)
+			albumArt.onContextMenuRequested = EventHandler {
+				menu.show(albumArt, it.screenX, it.screenY)
+			}
+			youtubeDL.albumArtProperty.addListener { _, _, new ->
+				if (new == null) return@addListener
+				val image = Image(new.toUri().toString(), 200.0, 200.0, false, true)
+				albumArt.image = image
 			}
 		}
+
+		fun initTable() {
+			songsTable.columns.clear()
+			val track = TableColumn<Song, Int>("#")
+			track.cellFactory = Callback<TableColumn<Song, Int>, TableCell<Song, Int>> {
+				TextFieldTableCell<Song, Int>(IntegerStringConverter())
+			}
+			track.cellValueFactory = PropertyValueFactory<Song, Int>("trackNo")
+			track.setOnEditCommit { it.rowValue.trackNo = it.newValue }
+			val song = TableColumn<Song, String>("Song")
+			song.cellValueFactory = PropertyValueFactory<Song, String>("song")
+			song.cellFactory = Callback<TableColumn<Song, String>, TableCell<Song, String>> {
+				TextFieldTableCell<Song, String>(DefaultStringConverter())
+			}
+			song.setOnEditCommit { it.rowValue.song = it.newValue }
+			val artist = TableColumn<Song, String>("Artist")
+			artist.cellValueFactory = PropertyValueFactory<Song, String>("artist")
+			artist.cellFactory = Callback<TableColumn<Song, String>, TableCell<Song, String>> {
+				val cell = TextFieldTableCell<Song, String>(DefaultStringConverter())
+				val item1 = MenuItem("Set artist for all")
+				item1.setOnAction { songs.forEach { it.artist = cell.text } }
+				cell.contextMenu = ContextMenu()
+				cell.contextMenu.items.add(item1)
+				songsTable.items = FXCollections.observableList(songs)
+				cell
+			}
+			song.minWidth = 170.0
+			artist.minWidth = 170.0
+			artist.setOnEditCommit { it.rowValue.artist = it.newValue }
+			songsTable.editableProperty().value = true
+			songsTable.columns.addAll(track, song, artist)
+		}
+
+		initAlbumArt()
+		initTable()
+
 		outputFolderChooserButton.setOnAction { handleFolderChoose() }
 		downloadButton.setOnAction { handleDownloadButton() }
 		outputFolderField.textProperty().addListener { _, _, _ -> updateDownloadButton() }
@@ -146,73 +235,6 @@ class Controller(private val stage : Stage) {
 		formatComboBox.selectionModelProperty().addListener { _, _, _ -> updateDownloadButton() }
 		formatComboBox.selectionModel.selectedItemProperty().addListener { _, _, _ -> updateDownloadButton() }
 		backButton.setOnAction { firstPaneSwitch() }
-		youtubeDL.albumArtProperty.addListener { _, _, new ->
-			if (new == null) return@addListener
-			val image = Image(new.toUri().toString(), 200.0, 200.0, false, true)
-			albumArt.image = image
-		}
-		albumArt.setOnDragOver {
-			if (it.gestureSource != albumArt && it.dragboard.hasFiles()) {
-				/* allow for both copying and moving, whatever user chooses */
-				it.acceptTransferModes(*TransferMode.COPY_OR_MOVE)
-			}
-			it.consume()
-		}
-		albumArt.setOnDragDropped {
-			val db = it.dragboard
-			val success = false
-			if (db.hasFiles()) {
-				if (db.files.size == 1) {
-					val fil = db.files[0]
-					try {
-						youtubeDL.albumArt = fil.toPath()
-					} catch (e : Exception) {
-					}
-				}
-			}
-			it.isDropCompleted = success
-
-			it.consume()
-		}
-		albumArt.setOnMouseClicked { if (it.isPrimaryButtonDown) handleAlbumArtChange() }
-		val menu = ContextMenu()
-		val items = arrayOf(MenuItem("Set Album Art"), MenuItem("Restore Default Art"))
-		items[0].setOnAction { handleAlbumArtChange() }
-		items[1].setOnAction { youtubeDL.setDefaultArt() }
-		menu.items.addAll(items)
-		albumArt.onContextMenuRequested = EventHandler {
-			menu.show(albumArt, it.screenX, it.screenY)
-		}
-
-		songsTable.columns.clear()
-		val track = TableColumn<Song, Int>("#")
-		track.cellFactory = Callback<TableColumn<Song, Int>, TableCell<Song, Int>> {
-			TextFieldTableCell<Song, Int>(IntegerStringConverter())
-		}
-		track.cellValueFactory = PropertyValueFactory<Song, Int>("trackNo")
-		track.setOnEditCommit { it.rowValue.trackNo = it.newValue }
-		val song = TableColumn<Song, String>("Song")
-		song.cellValueFactory = PropertyValueFactory<Song, String>("song")
-		song.cellFactory = Callback<TableColumn<Song, String>, TableCell<Song, String>> {
-			TextFieldTableCell<Song, String>(DefaultStringConverter())
-		}
-		song.setOnEditCommit { it.rowValue.song = it.newValue }
-		val artist = TableColumn<Song, String>("Artist")
-		artist.cellValueFactory = PropertyValueFactory<Song, String>("artist")
-		artist.cellFactory = Callback<TableColumn<Song, String>, TableCell<Song, String>> {
-			val cell = TextFieldTableCell<Song, String>(DefaultStringConverter())
-			val item1 = MenuItem("Set artist for all")
-			item1.setOnAction { songs.forEach { it.artist = cell.text } }
-			cell.contextMenu = ContextMenu()
-			cell.contextMenu.items.add(item1)
-			songsTable.items = FXCollections.observableList(songs)
-			cell
-		}
-		song.minWidth = 170.0
-		artist.minWidth = 170.0
-		artist.setOnEditCommit { it.rowValue.artist = it.newValue }
-		songsTable.editableProperty().value = true
-		songsTable.columns.addAll(track, song, artist)
 	}
 
 	private fun handleAlbumArtChange() {
@@ -367,9 +389,19 @@ class Controller(private val stage : Stage) {
 				val description = youtubeDL.getProperty("description")
 				descriptionBox.text = description
 				regexButton.disableProperty().value = false
+				descriptionBox.isDisable = false
+				urlField.styleClass -= "error"
+			} catch (e : Exception) {
+				Platform.runLater {
+					urlField.requestFocus()
+					urlField.selectAll()
+					urlField.styleClass += "error"
+					regexButton.disableProperty().value = true
+					descriptionBox.clear()
+					descriptionBox.isDisable = true
+				}
 			} finally {
-				descriptionBox.disableProperty().value = false
-				regexButton.disableProperty().value = false
+				regexField.styleClass -= "error"
 				getDescriptionButton.disableProperty().value = false
 				Platform.runLater {
 					getDescriptionButton.text = oldtext
@@ -389,8 +421,14 @@ class Controller(private val stage : Stage) {
 			val matcher = pattern.matcher(descriptionBox.text + System.lineSeparator())
 			songs = RegexStuff.matchSongs(matcher)
 			secondPaneSwitch()
+			regexField.styleClass -= "error"
 		} catch (e : Exception) {
 			e.printStackTrace()
+			regexField.styleClass += "error"
+			Platform.runLater {
+				regexField.requestFocus()
+				regexField.selectAll()
+			}
 			return
 		}
 	}

@@ -1,5 +1,15 @@
 package com.sheinh.ytsplit
 
+import javafx.application.Platform
+import javafx.event.EventHandler
+import javafx.fxml.FXML
+import javafx.fxml.FXMLLoader
+import javafx.scene.Parent
+import javafx.scene.Scene
+import javafx.scene.control.Button
+import javafx.scene.control.TextField
+import javafx.stage.Stage
+import java.awt.Desktop
 import java.io.*
 import java.net.MalformedURLException
 import java.net.URL
@@ -26,6 +36,52 @@ object Dependencies {
 			}
 			zipEntry = zis.nextEntry
 		}
+	}
+
+
+	fun handleMacDependancies(stage : Stage) {
+		val mycontroller = object {
+			@FXML
+			lateinit var tf1 : TextField
+			@FXML
+			lateinit var tf2 : TextField
+			@FXML
+			lateinit var open : Button
+			@FXML
+			lateinit var close : Button
+
+			@FXML
+			fun initialize() {
+				tf1.focusedProperty().addListener { _, _, new ->
+					if (new) Platform.runLater { tf1.selectAll() }
+				}
+				tf1.selectionProperty().addListener { _, old, new ->
+					if (old != new) Platform.runLater { tf1.selectAll() }
+				}
+				tf2.focusedProperty().addListener { _, _, new ->
+					if (new) Platform.runLater { tf2.selectAll() }
+				}
+				tf2.selectionProperty().addListener { _, old, new ->
+					if (old != new) Platform.runLater { tf2.selectAll() }
+				}
+				open.onAction = EventHandler {
+					val file = File("/Applications/Utilities/Terminal.app")
+					Desktop.getDesktop().open(file)
+				}
+				close.onAction = EventHandler {
+					Platform.runLater {
+						stage.close()
+					}
+				}
+			}
+		}
+		val fxmlLoader = FXMLLoader(javaClass.getResource("/SetupMac.fxml"))
+		fxmlLoader.setController(mycontroller)
+		val root = fxmlLoader.load<Any>() as Parent
+		stage.title = "Dependancies"
+		stage.scene = Scene(root)
+		stage.isResizable = false
+		stage.show()
 	}
 
 	fun checkDependencies() : Boolean {

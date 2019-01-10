@@ -67,7 +67,8 @@
         </ComboBox>
     </HBox>
     <HBox fx:id="secondPaneBottomBar" maxWidth="1.7976931348623157E308" spacing="8.0">
-        <Button fx:id="backButton" cancelButton="true" mnemonicParsing="false" text="⬅"/>
+        <Button fx:id="backButton" cancelButton="true" mnemonicParsing="false" text="⬅"
+                maxHeight="1.7976931348623157E308" minHeight="29" prefWidth="40.0"/>
         <Button fx:id="downloadButton" defaultButton="true" disable="true" maxWidth="Infinity" mnemonicParsing="false"
                 text="Save Music" HBox.hgrow="ALWAYS"/>
     </HBox>

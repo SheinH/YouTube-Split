@@ -11,7 +11,20 @@
 .warning {
     -fx-background-color: #FF000055;
 }
-
+.button, .text-field, .combo-box{
+    -fx-background-radius: 4px
+}
 .success {
     -fx-background-color: #00FF0055;
+}
+.text-field.error {
+    -fx-effect: dropshadow(three-pass-box, darkred, 7, 0, 0, 0);
+}
+.text-field.error:focused{
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color:rgba(0,0,0,0); /* here rgba (corrected) */
+}
+
+.warning {
+    -fx-effect: dropshadow(three-pass-box, gold, 14, 0, 0, 0);
 }

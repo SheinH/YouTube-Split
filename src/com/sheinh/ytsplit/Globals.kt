@@ -6,6 +6,13 @@ import java.io.InputStreamReader
 var YOUTUBE = "youtube-dl"
 var FFMPEG = "ffmpeg"
 val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+
+val isMac : Boolean
+    get() {
+        val os = System.getProperty("os.name").toLowerCase()
+        return (os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0)
+    }
+
 internal var WINDOWS_ARGS = if (isWindows) arrayOf("cmd.exe", "/c") else emptyArray()
 val Process.input : String
     get() {
@@ -38,5 +45,5 @@ fun ProcessBuilder.loadEnv() : ProcessBuilder {
 }
 
 fun sanitizeFilename(inputName : String) : String {
-	return inputName.replace("[^a-zA-Z0-9-_\\.]".toRegex(), "_")
+    return inputName.replace("[^a-zA-Z0-9-_.]".toRegex(), "_")
 }

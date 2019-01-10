@@ -6,7 +6,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import java.net.URL?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="mainVBox" spacing="5.0" xmlns="http://javafx.com/javafx/10.0.1">
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="mainVBox" spacing="5.0" xmlns="http://javafx.com/javafx/10.0.1"
+      prefWidth="520.0">
     <stylesheets>
         <URL value="@style.css"/>
     </stylesheets>
@@ -36,7 +37,8 @@
             <Font size="13.0"/>
         </font>
     </Label>
-    <TextArea fx:id="descriptionBox" focusTraversable="false" prefHeight="300" prefWidth="500">
+    <TextArea fx:id="descriptionBox" focusTraversable="false" disable="true" prefHeight="300" prefWidth="500"
+              wrapText="true">
         <font>
             <Font name="Monospaced Regular" size="13.0"/>
         </font>
@@ -56,7 +58,8 @@
                 <Font size="13.0"/>
             </font>
         </AutoCompleteTextField>
-        <Button fx:id="regexButton" disable="true" focusTraversable="false" maxHeight="1.7976931348623157E308"
+        <Button fx:id="regexButton" disable="true" defaultButton="true" focusTraversable="false"
+                maxHeight="1.7976931348623157E308"
                 mnemonicParsing="false" prefWidth="40.0" text="➡"/>
     </HBox>
 </VBox>
