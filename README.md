@@ -4,10 +4,10 @@ YouTube Split is an application for ripping full-length albums off youtube
 
 The program works by downloading the description of a video.
 If the video has timestamps in the description paired with song names, YouTube Split can read this data.
-The program pattern matches the description based on the following syntax:
+The program pattern matches the description:
 
 Example Pattern:
-```{TIMESTAMP} {ARTIST} - {SONG}```
+```{TIMESTAMP} {ARTIST} - {SONG}``` matches ```3:01 The Beatles - With a Little Help From my Friends```
 
 
 ![Tracks](https://i.imgur.com/xNo8nQH.png)
