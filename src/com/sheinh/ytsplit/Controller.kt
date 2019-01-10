@@ -98,10 +98,12 @@ class Controller(private val stage : Stage) {
 		}
 	}
 
-	fun getDependanciesWin() {
-		if (!Dependencies.checkDependencies() && isWindows) {
-			showLoadingDialog {
-				Dependencies.getDependencies()
+	fun getDependenciesWin() {
+		if (!Dependencies.check && isWindows) {
+			Platform.runLater {
+				showLoadingDialog {
+					Dependencies.getDependencies()
+				}
 			}
 		}
 	}
@@ -215,12 +217,13 @@ class Controller(private val stage : Stage) {
 				item1.setOnAction { songs.forEach { it.artist = cell.text } }
 				cell.contextMenu = ContextMenu()
 				cell.contextMenu.items.add(item1)
-				songsTable.items = FXCollections.observableList(songs)
 				cell
 			}
 			song.minWidth = 170.0
 			artist.minWidth = 170.0
-			artist.setOnEditCommit { it.rowValue.artist = it.newValue }
+			artist.setOnEditCommit {
+				if (songs.none { it.artist.isNotBlank() }) songs.forEach { s -> s.artist = it.newValue }
+			}
 			songsTable.editableProperty().value = true
 			songsTable.columns.addAll(track, song, artist)
 		}
@@ -315,11 +318,11 @@ class Controller(private val stage : Stage) {
 						val alert = Alert(Alert.AlertType.INFORMATION)
 						alert.title = "Save Complete"
 						alert.headerText = null
-						alert.contentText = "Files saved to ${directory}"
+						alert.contentText = "Files saved to $directory"
 
 						alert.buttonTypes.clear()
 						alert.buttonTypes.add(ButtonType.CLOSE)
-						alert.buttonTypes.add(ButtonType("MYBUTTON", ButtonBar.ButtonData.YES))
+						alert.buttonTypes.add(ButtonType("Open Folder", ButtonBar.ButtonData.YES))
 
 						val out = alert.showAndWait()
 
@@ -372,11 +375,11 @@ class Controller(private val stage : Stage) {
 	}
 
 	private fun handleDescriptionButton() {
-		if (getDescriptionButton.graphic != null) return
+		if (getDescriptionButton.graphic is ProgressIndicator) return
 		regexField.requestFocus()
 		descriptionBox.disableProperty().value = true
 		regexButton.disableProperty().value = true
-		val oldtext = getDescriptionButton.text
+		val oldtext = getDescriptionButton.graphic
 		getDescriptionButton.text = ""
 		val indicator = ProgressIndicator()
 		indicator.maxHeight = 20.0
@@ -404,8 +407,7 @@ class Controller(private val stage : Stage) {
 				regexField.styleClass -= "error"
 				getDescriptionButton.disableProperty().value = false
 				Platform.runLater {
-					getDescriptionButton.text = oldtext
-					getDescriptionButton.graphic = null
+					getDescriptionButton.graphic = oldtext
 				}
 			}
 		}

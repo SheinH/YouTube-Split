@@ -3,6 +3,8 @@
 <?import com.sheinh.ytsplit.AutoCompleteTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import java.net.URL?>
@@ -26,10 +28,12 @@
             </font>
         </TextField>
         <Button fx:id="getDescriptionButton" focusTraversable="false" maxHeight="29.0" minWidth="40.0"
-                mnemonicParsing="false" text="⬇">
-            <HBox.margin>
-                <Insets/>
-            </HBox.margin>
+                mnemonicParsing="false">
+            <graphic>
+                <ImageView fitHeight="100.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@fetch.png"/>
+                </ImageView>
+            </graphic>
         </Button>
     </HBox>
     <Label fx:id="descriptionLabel" text="Description">
@@ -60,6 +64,12 @@
         </AutoCompleteTextField>
         <Button fx:id="regexButton" disable="true" defaultButton="true" focusTraversable="false"
                 maxHeight="1.7976931348623157E308"
-                mnemonicParsing="false" prefWidth="40.0" text="➡"/>
+                mnemonicParsing="false" prefWidth="40.0">
+            <graphic>
+                <ImageView fitHeight="100.0" fitWidth="10.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@forward_arrow.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
     </HBox>
 </VBox>

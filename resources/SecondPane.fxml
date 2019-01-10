@@ -3,6 +3,7 @@
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -67,8 +68,14 @@
         </ComboBox>
     </HBox>
     <HBox fx:id="secondPaneBottomBar" maxWidth="1.7976931348623157E308" spacing="8.0">
-        <Button fx:id="backButton" cancelButton="true" mnemonicParsing="false" text="⬅"
-                maxHeight="1.7976931348623157E308" minHeight="29" prefWidth="40.0"/>
+        <Button fx:id="backButton" cancelButton="true" maxHeight="1.7976931348623157E308" mnemonicParsing="false"
+                prefWidth="40.0">
+            <graphic>
+                <ImageView fitHeight="100.0" fitWidth="10.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@back_arrow.png"/>
+                </ImageView>
+            </graphic>
+        </Button>
         <Button fx:id="downloadButton" defaultButton="true" disable="true" maxWidth="Infinity" mnemonicParsing="false"
                 text="Save Music" HBox.hgrow="ALWAYS"/>
     </HBox>

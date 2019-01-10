@@ -5,17 +5,19 @@ import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.stage.Stage
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class MainApp : Application() {
 	private lateinit var controller : Controller
 	override fun start(stage : Stage) {
-		if (isMac && !Dependencies.checkDependencies()) {
-			Dependencies.handleMacDependancies(stage)
+		if (isMac && !Dependencies.check) {
+			Dependencies.handleMacDependencies(stage)
 		} else startMainApp(stage)
 	}
 
-	fun startMainApp(stage : Stage) {
+	private fun startMainApp(stage : Stage) {
 		controller = Controller(stage)
 		var fxmlLoader = FXMLLoader(javaClass.getResource("/FirstPane.fxml"))
 		fxmlLoader.setController(controller)
@@ -27,12 +29,14 @@ class MainApp : Application() {
 		stage.scene.stylesheets.add("style.css")
 		stage.isResizable = false
 		stage.show()
-		controller.getDependanciesWin()
-		fxmlLoader = FXMLLoader(javaClass.getResource("/SecondPane.fxml"))
-		fxmlLoader.setController(controller)
-		root = fxmlLoader.load<Any>() as Parent
-		controller.secondPane = root
-		controller.secondPaneInit()
+		GlobalScope.launch {
+			controller.getDependenciesWin()
+			fxmlLoader = FXMLLoader(javaClass.getResource("/SecondPane.fxml"))
+			fxmlLoader.setController(controller)
+			root = fxmlLoader.load<Any>() as Parent
+			controller.secondPane = root
+			controller.secondPaneInit()
+		}
 	}
 }
 

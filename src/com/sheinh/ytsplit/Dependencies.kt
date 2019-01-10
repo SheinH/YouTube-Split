@@ -24,6 +24,19 @@ import java.util.zip.ZipInputStream
 
 
 object Dependencies {
+	val check by lazy {
+		val yt = checkExe("youtube-dl")
+		var ffmpeg = checkExe("ffmpeg")
+		if (isWindows) {
+			yt == yt || File("youtube-dl.exe").exists()
+			ffmpeg = ffmpeg || File("ffmpeg.exe").exists()
+			if (File("ffmpeg.exe").exists()) FFMPEG = File("ffmpeg.exe").absolutePath
+			if (yt && ffmpeg) {
+				if (File("ffmpeg.zip").exists()) File("ffmpeg.zip").delete()
+			}
+		}
+		return@lazy yt && ffmpeg
+	}
 	private fun decompress() {
 		if (File("ffmpeg.exe").exists()) return
 		val fileZip = "ffmpeg.zip"
@@ -39,7 +52,7 @@ object Dependencies {
 	}
 
 
-	fun handleMacDependancies(stage : Stage) {
+	fun handleMacDependencies(stage : Stage) {
 		val mycontroller = object {
 			@FXML
 			lateinit var tf1 : TextField
@@ -78,24 +91,10 @@ object Dependencies {
 		val fxmlLoader = FXMLLoader(javaClass.getResource("/SetupMac.fxml"))
 		fxmlLoader.setController(mycontroller)
 		val root = fxmlLoader.load<Any>() as Parent
-		stage.title = "Dependancies"
+		stage.title = "Dependencies"
 		stage.scene = Scene(root)
 		stage.isResizable = false
 		stage.show()
-	}
-
-	fun checkDependencies() : Boolean {
-		val yt = checkExe("youtube-dl")
-		var ffmpeg = checkExe("ffmpeg")
-		if (isWindows) {
-			yt == yt || File("youtube-dl.exe").exists()
-			ffmpeg = ffmpeg || File("ffmpeg.exe").exists()
-			if (File("ffmpeg.exe").exists()) FFMPEG = File("ffmpeg.exe").absolutePath
-			if (yt && ffmpeg) {
-				if (File("ffmpeg.zip").exists()) File("ffmpeg.zip").delete()
-			}
-		}
-		return yt && ffmpeg
 	}
 
 	fun getDependencies() {
