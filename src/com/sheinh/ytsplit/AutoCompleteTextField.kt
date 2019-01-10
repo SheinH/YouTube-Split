@@ -68,7 +68,7 @@ class AutoCompleteTextField : TextField() {
 				filterIndex, filterIndex + filter.length
 			)
 		) //instead of "filter" to keep all "case sensitive"
-		textFilter.fill = Color.PURPLE
+		textFilter.fill = Color.RED
 		textFilter.font = Font.font("Helvetica", FontWeight.BOLD, 13.0)
 		return TextFlow(textBefore, textFilter, textAfter)
 	}

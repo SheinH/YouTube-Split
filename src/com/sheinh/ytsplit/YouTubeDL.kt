@@ -20,9 +20,11 @@ class YouTubeDL {
 		get() = urlProperty.value
 		set(value) {
 			urlProperty.set(value)
+			jsonLoaded = false
 		}
 	val urlProperty = SimpleStringProperty()
 	private lateinit var json : JsonObject
+	var jsonLoaded = false
 	private lateinit var audioFile : Path
 	private lateinit var outputFiles : HashMap<Song, Path>
 	val albumArtProperty = SimpleObjectProperty<Path>()
@@ -40,6 +42,7 @@ class YouTubeDL {
 		val input = process.input
 		process.waitFor()
 		json = JsonParser().parse(input).asJsonObject
+		jsonLoaded = true
 	}
 
 	fun getProperty(property : String) : String? = json.get(property).asString
@@ -82,17 +85,20 @@ class YouTubeDL {
 		}
 	}
 
-	fun save(directory : Path, encoding : String, bitrate : Int, songs : List<Song>, updater : () -> Unit) {
+	fun save(directory : Path, encoding : String, bitrate : Int, songs : List<Song>, updater : () -> Unit) : Long {
+		val startTime = System.nanoTime()
+		download()
+		updater()
 		val encodingParameters = when (encoding) {
 			"opus" -> listOf("-b:a", bitrate.toString() + "k", "-c:a", "libopus")
 			else -> listOf("-b:a", bitrate.toString() + "k")
 		}
 		outputFiles = HashMap()
-		songs.forEach {
+		songs.parallelStream().forEach {
 			val outFileName = String.format("%02d", it.trackNo) + ". ${it.artist} - ${it.song}.$encoding"
 			val command = ArrayList<String>(10)
 			command.addAll(WINDOWS_ARGS)
-			command.addAll(listOf(FFMPEG, "-i", audioFile.toString()))
+			command.addAll(listOf(FFMPEG, "-y", "-i", audioFile.toString()))
 			command.addAll(listOf("-metadata", "ARTIST=\"me\""))
 			encodingParameters.forEach { command.add(it) }
 			command.addAll(listOf("-ss", it.timestamp.toString()))
@@ -109,5 +115,6 @@ class YouTubeDL {
 			writeTag(it)
 			updater()
 		}
+		return System.nanoTime() - startTime
 	}
 }

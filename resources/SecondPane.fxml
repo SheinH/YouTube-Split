@@ -8,9 +8,9 @@
 <?import javafx.scene.text.*?>
 <?import java.lang.String?>
 <?import java.net.URL?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-      minWidth="-Infinity"
-      prefWidth="520.0" spacing="10.0" xmlns="http://javafx.com/javafx/10.0.1" fx:id="secondPaneVBox">
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="secondPaneVBox" maxHeight="-Infinity" maxWidth="-Infinity"
+      minHeight="-Infinity" minWidth="-Infinity" prefWidth="520.0" spacing="10.0"
+      xmlns="http://javafx.com/javafx/10.0.1">
     <stylesheets>
         <URL value="@style.css"/>
     </stylesheets>
@@ -66,9 +66,9 @@
             </items>
         </ComboBox>
     </HBox>
-    <HBox maxWidth="1.7976931348623157E308" spacing="8.0" fx:id="secondPaneBottomBar">
-        <Button fx:id="backButton" mnemonicParsing="false" text="⬅"/>
-        <Button fx:id="downloadButton" disable="true" maxWidth="Infinity" mnemonicParsing="false" text="Save Music"
-                HBox.hgrow="ALWAYS"/>
+    <HBox fx:id="secondPaneBottomBar" maxWidth="1.7976931348623157E308" spacing="8.0">
+        <Button fx:id="backButton" cancelButton="true" mnemonicParsing="false" text="⬅"/>
+        <Button fx:id="downloadButton" defaultButton="true" disable="true" maxWidth="Infinity" mnemonicParsing="false"
+                text="Save Music" HBox.hgrow="ALWAYS"/>
     </HBox>
 </VBox>

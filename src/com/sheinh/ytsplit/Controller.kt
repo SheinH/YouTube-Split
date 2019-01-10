@@ -17,15 +17,13 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import javafx.stage.DirectoryChooser
-import javafx.stage.FileChooser
-import javafx.stage.Modality
-import javafx.stage.Stage
+import javafx.stage.*
 import javafx.util.Callback
 import javafx.util.converter.DefaultStringConverter
 import javafx.util.converter.IntegerStringConverter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.awt.Desktop
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Files
@@ -103,7 +101,9 @@ class Controller(private val stage : Stage) {
 	private fun showLoadingDialog(task : () -> Unit) {
 		val dialog = MyDialog()
 		dialog.initOwner(stage)
+		dialog.title = "Setup"
 		dialog.initModality(Modality.APPLICATION_MODAL)
+		dialog.initStyle(StageStyle.UNDECORATED)
 		val node = FXMLLoader(javaClass.getResource("/Setup.fxml")).load<Any>()
 		dialog.scene = Scene(node as Parent)
 		dialog.show()
@@ -276,20 +276,37 @@ class Controller(private val stage : Stage) {
 			val numTasks = (songs.size + 1).toDouble()
 			var tasksCompleted = 0
 			val addProgress = {
+				tasksCompleted++
 				Platform.runLater {
-					tasksCompleted++
 					progressBar.progress = tasksCompleted / numTasks
 				}
 			}
 			progressBarShown = true
-			val directory = outputDirectory.resolve(album)
+			val directory = outputDirectory.resolve(sanitizeFilename(album))
 			if (!Files.exists(directory)) Files.createDirectories(directory)
 			GlobalScope.launch {
 				try {
-					youtubeDL.download()
-					Platform.runLater { addProgress() }
 					youtubeDL.save(directory, codec, bitrateField.text.toInt(), songs, addProgress)
-					progressBarShown = false
+					Platform.runLater {
+						progressBarShown = false
+						progressBar.progress = 0.0
+						val alert = Alert(Alert.AlertType.INFORMATION)
+						alert.title = "Save Complete"
+						alert.headerText = null
+						alert.contentText = "Files saved to ${directory}"
+
+						alert.buttonTypes.clear()
+						alert.buttonTypes.add(ButtonType.CLOSE)
+						alert.buttonTypes.add(ButtonType("MYBUTTON", ButtonBar.ButtonData.YES))
+
+						val out = alert.showAndWait()
+
+						if (out.isPresent) {
+							if (out.get().buttonData == ButtonBar.ButtonData.YES) {
+								Desktop.getDesktop().open(directory.toFile())
+							}
+						}
+					}
 				} finally {
 					outputFolderField.disableProperty().value = false
 					songsTable.disableProperty().value = false
@@ -343,7 +360,7 @@ class Controller(private val stage : Stage) {
 		indicator.maxHeight = 20.0
 		indicator.maxWidth = 20.0
 		getDescriptionButton.graphic = indicator
-		GlobalScope.launch {
+		val job = GlobalScope.launch {
 			try {
 				youtubeDL.url = urlField.text
 				youtubeDL.loadJsonData()
@@ -361,7 +378,8 @@ class Controller(private val stage : Stage) {
 			}
 		}
 		GlobalScope.launch {
-			youtubeDL.fetchAlbumArt()
+			job.join()
+			if (youtubeDL.jsonLoaded) youtubeDL.fetchAlbumArt()
 		}
 	}
 

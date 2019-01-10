@@ -36,3 +36,7 @@ fun ProcessBuilder.loadEnv() : ProcessBuilder {
     environment()["PATH"] = System.getenv("PATH")
     return this
 }
+
+fun sanitizeFilename(inputName : String) : String {
+	return inputName.replace("[^a-zA-Z0-9-_\\.]".toRegex(), "_")
+}
