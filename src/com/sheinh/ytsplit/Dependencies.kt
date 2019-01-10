@@ -15,6 +15,7 @@ import java.net.MalformedURLException
 import java.net.URL
 import java.nio.channels.Channels
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,7 +26,7 @@ import java.util.zip.ZipInputStream
 
 object Dependencies {
 	val check by lazy {
-		val yt = checkExe("youtube-dl")
+		var yt = checkExe("youtube-dl")
 		var ffmpeg = checkExe("ffmpeg")
 		if (isWindows) {
 			yt == yt || File("youtube-dl.exe").exists()
@@ -34,6 +35,14 @@ object Dependencies {
 			if (yt && ffmpeg) {
 				if (File("ffmpeg.zip").exists()) File("ffmpeg.zip").delete()
 			}
+		}
+		if (isMac) {
+			if (yt && ffmpeg) return@lazy true
+			val dir = Path.of("/usr/local/bin/")
+			YOUTUBE = dir.resolve("youtube-dl").toString()
+			FFMPEG = dir.resolve("ffmpeg").toString()
+			yt = checkExe(YOUTUBE)
+			ffmpeg = checkExe(FFMPEG)
 		}
 		return@lazy yt && ffmpeg
 	}
@@ -117,6 +126,7 @@ object Dependencies {
 
 
 	private fun checkExe(command : String) : Boolean {
+		if (Files.exists(Path.of(command))) return true
 		val filename = if (isWindows) "$command.exe" else command
 		val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
 		directories.add(System.getProperty("user.dir"))

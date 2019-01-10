@@ -1,3 +1,7 @@
+.root{
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 .label{
 -fx-font-size : 13
 }
