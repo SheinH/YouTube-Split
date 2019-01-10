@@ -24,12 +24,13 @@ import javafx.stage.Stage
 import javafx.util.Callback
 import javafx.util.converter.DefaultStringConverter
 import javafx.util.converter.IntegerStringConverter
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
-import java.util.concurrent.Executors
 
 class Controller(private val stage : Stage) {
 
@@ -75,7 +76,6 @@ class Controller(private val stage : Stage) {
 	private val youtubeDL = YouTubeDL()
 	private var songs = ArrayList<Song>()
 	private val outputFolderChooser = DirectoryChooser()
-	private val thread = Executors.newSingleThreadExecutor()
 
 	private val album get() = albumField.text
 	private val outputDirectory get() = Path.of(outputFolderField.text)
@@ -107,7 +107,7 @@ class Controller(private val stage : Stage) {
 		val node = FXMLLoader(javaClass.getResource("/Setup.fxml")).load<Any>()
 		dialog.scene = Scene(node as Parent)
 		dialog.show()
-		thread.submit {
+		GlobalScope.launch {
 			try {
 				task()
 				dialog.taskDone.value = true
@@ -284,7 +284,7 @@ class Controller(private val stage : Stage) {
 			progressBarShown = true
 			val directory = outputDirectory.resolve(album)
 			if (!Files.exists(directory)) Files.createDirectories(directory)
-			thread.submit {
+			GlobalScope.launch {
 				try {
 					youtubeDL.download()
 					Platform.runLater { addProgress() }
@@ -343,7 +343,7 @@ class Controller(private val stage : Stage) {
 		indicator.maxHeight = 20.0
 		indicator.maxWidth = 20.0
 		getDescriptionButton.graphic = indicator
-		thread.submit {
+		GlobalScope.launch {
 			try {
 				youtubeDL.url = urlField.text
 				youtubeDL.loadJsonData()
@@ -360,7 +360,7 @@ class Controller(private val stage : Stage) {
 				}
 			}
 		}
-		thread.submit {
+		GlobalScope.launch {
 			youtubeDL.fetchAlbumArt()
 		}
 	}

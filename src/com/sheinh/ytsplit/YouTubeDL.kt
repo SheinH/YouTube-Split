@@ -3,6 +3,7 @@ package com.sheinh.ytsplit
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.File
@@ -15,7 +16,12 @@ import java.util.regex.Pattern
 
 
 class YouTubeDL {
-	lateinit var url : String
+	var url : String?
+		get() = urlProperty.value
+		set(value) {
+			urlProperty.set(value)
+		}
+	val urlProperty = SimpleStringProperty()
 	private lateinit var json : JsonObject
 	private lateinit var audioFile : Path
 	private lateinit var outputFiles : HashMap<Song, Path>
