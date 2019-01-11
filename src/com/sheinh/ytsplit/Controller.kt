@@ -302,6 +302,7 @@ class Controller(private val stage : Stage) {
 			bitrateField.disableProperty().value = true
 			formatComboBox.disableProperty().value = true
 			outputFolderChooserButton.disableProperty().value = true
+			albumArt.disableProperty().value = true
 			songs.forEach { it.album = album }
 			val numTasks = (songs.size + 1).toDouble()
 			var tasksCompleted = 0
@@ -343,6 +344,7 @@ class Controller(private val stage : Stage) {
 					bitrateField.disableProperty().value = false
 					formatComboBox.disableProperty().value = false
 					outputFolderChooserButton.disableProperty().value = false
+					albumArt.disableProperty().value = false
 					Platform.runLater { progressBarShown = false }
 				}
 			}
@@ -354,6 +356,7 @@ class Controller(private val stage : Stage) {
 			formatComboBox.disableProperty().value = false
 			outputFolderChooserButton.disableProperty().value = false
 			progressBarShown = false
+			albumArt.disableProperty().value = false
 		}
 	}
 
