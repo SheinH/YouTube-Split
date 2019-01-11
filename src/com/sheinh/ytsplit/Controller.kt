@@ -27,7 +27,6 @@ import java.awt.Desktop
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Files
-import java.nio.file.Path
 import java.util.*
 
 class Controller(private val stage : Stage) {
@@ -76,7 +75,7 @@ class Controller(private val stage : Stage) {
 	private val outputFolderChooser = DirectoryChooser()
 
 	private val album get() = albumField.text
-	private val outputDirectory get() = Path.of(outputFolderField.text)
+	private val outputDirectory get() = File(outputFolderField.text).toPath()
 	private val codec
 		get() = when (formatComboBox.selectionModel.selectedIndex) {
 			0 -> "m4a"

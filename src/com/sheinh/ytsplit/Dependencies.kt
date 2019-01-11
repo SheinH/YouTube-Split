@@ -15,7 +15,6 @@ import java.net.MalformedURLException
 import java.net.URL
 import java.nio.channels.Channels
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,7 +37,7 @@ object Dependencies {
 		}
 		if (isMac) {
 			if (yt && ffmpeg) return@lazy true
-			val dir = Path.of("/usr/local/bin/")
+			val dir = File("/usr/local/bin/").toPath()
 			YOUTUBE = dir.resolve("youtube-dl").toString()
 			FFMPEG = dir.resolve("ffmpeg").toString()
 			yt = checkExe(YOUTUBE)
@@ -126,7 +125,7 @@ object Dependencies {
 
 
 	private fun checkExe(command : String) : Boolean {
-		if (Files.exists(Path.of(command))) return true
+		if (File(command).exists()) return true
 		val filename = if (isWindows) "$command.exe" else command
 		val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
 		directories.add(System.getProperty("user.dir"))
