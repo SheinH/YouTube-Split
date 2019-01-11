@@ -124,14 +124,15 @@ class Controller(private val stage: Stage) {
                 dialog.taskDone.value = true
                 Platform.runLater { dialog.close() }
             } catch (e: Exception) {
-                val errorDialog = Alert(Alert.AlertType.ERROR)
-                errorDialog.headerText = null
-                errorDialog.title = "Error"
-                errorDialog.headerText = "Download failed"
-                errorDialog.contentText = "Try again Later"
-                errorDialog.width = 220.0
-                errorDialog.showAndWait()
+                e.printStackTrace(System.out)
                 Platform.runLater {
+                    val errorDialog = Alert(Alert.AlertType.ERROR)
+                    errorDialog.headerText = null
+                    errorDialog.title = "Error"
+                    errorDialog.headerText = "Download failed"
+                    errorDialog.contentText = "Try again Later"
+                    errorDialog.width = 220.0
+                    errorDialog.showAndWait()
                     dialog.close()
                     stage.close()
                 }
@@ -154,7 +155,6 @@ class Controller(private val stage: Stage) {
             }
         }
         val fonts = Font.getFamilies()
-        fonts.forEach { println(it) }
         val prefFonts = listOf("Menlo", "Consolas", "Lucida Console", "Monaco").filter { fonts.contains(it) }
         if (prefFonts.isNotEmpty()) descriptionBox.font = Font.font(prefFonts[0])
     }

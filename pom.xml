@@ -6,7 +6,7 @@
 
     <groupId>com.sheinh</groupId>
     <artifactId>YouTube-Split</artifactId>
-    <version>1.2</version>
+    <version>1.2.2</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -22,7 +22,6 @@
             <url>https://dl.bintray.com/ijabz/maven</url>
         </repository>
     </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -102,11 +101,6 @@
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
             <version>1.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.6</version>
         </dependency>
     </dependencies>
     <build>

@@ -85,7 +85,8 @@ class YouTubeDL {
 			audioFile.tag.setField(FieldKey.ARTIST, song.artist)
 			audioFile.tag.setField(FieldKey.TITLE, song.song)
 			audioFile.tag.setField(FieldKey.ALBUM, song.album)
-			if (song.trackNo != null) audioFile.tag.setField(FieldKey.TRACK, "${song.trackNo}/$numTracks")
+			if (song.trackNo != null) audioFile.tag.setField(FieldKey.TRACK, song.trackNo.toString())
+			audioFile.tag.setField(FieldKey.TRACK_TOTAL, numTracks.toString())
 			audioFile.commit()
 		}
 	}

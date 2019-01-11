@@ -16,9 +16,8 @@ import java.net.URL
 import java.nio.channels.Channels
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.*
-import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -172,9 +171,9 @@ object Dependencies {
 		os.close()
 	}
 
-	private fun downloadZip() {
+	fun downloadZip() {
 		System.setProperty("http.agent", "Chrome")
-		data class Link(val filename : String, val date : Date)
+		data class Link(val filename : String, val date : LocalDateTime)
 		if (File("ffmpeg.zip").exists()) return
 		val url : URL
 		var inputStr : InputStream? = null
@@ -182,7 +181,8 @@ object Dependencies {
 
 		try {
 			url = URL("https://ffmpeg.zeranoe.com/builds/win64/static/")
-			val form = SimpleDateFormat("yyyy-MMM-dd HH:mm")
+			/*
+			val form = DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm",Locale.US)
 			inputStr = url.openStream()  // throws an IOException
 			br = BufferedReader(InputStreamReader(inputStr))
 
@@ -199,7 +199,9 @@ object Dependencies {
 			val links = ArrayList<Link>()
 			matcher.find()
 			while (!matcher.hitEnd()) {
-				val date = form.parse(matcher.group(2))
+				println(matcher.group(2))
+				println(LocalDateTime.parse("2018-May-02 07:18",form))
+				val date = LocalDateTime.parse(matcher.group(2))
 				links += Link(matcher.group(1), date)
 				matcher.find()
 			}
@@ -210,8 +212,8 @@ object Dependencies {
 			println(links.last())
 			println(builder)
 			println(links[links.size - 1])
-			val lastFile = url.toString() + links.last().filename
-			val website = URL(lastFile)
+			val lastFile = url.toString() + links.last().filename*/
+			val website = URL("https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip")
 			val rbc = Channels.newChannel(website.openStream())
 			val fos = FileOutputStream("ffmpeg.zip")
 			fos.channel.transferFrom(rbc, 0, java.lang.Long.MAX_VALUE)
