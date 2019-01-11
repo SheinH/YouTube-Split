@@ -28,6 +28,7 @@
     -fx-border-width: 1px;
     -fx-highlight-text-fill: black;
 }
+
 .button{
     -fx-border-radius: 5;
 }
@@ -37,7 +38,7 @@
 .text-field{
     -fx-background-radius: 0px;
     -fx-highlight-text-fill: black;
-    -fx-font-color: black;
+    -fx-text-fill: black;
 }
 .success {
     -fx-background-color: #00FF0055;
@@ -52,4 +53,14 @@
 
 .warning {
     -fx-effect: dropshadow(three-pass-box, gold, 14, 0, 0, 0);
+}
+
+.progress-bar {
+    -fx-accent: #3c7cff;
+}
+.progress-bar > .bar {
+    -fx-accent: #3c7cff;
+    -fx-background-insets: 0;
+    -fx-background-radius: 2;
+    -fx-padding: 0;
 }
