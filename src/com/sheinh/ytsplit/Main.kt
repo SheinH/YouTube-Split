@@ -7,6 +7,7 @@ import javafx.scene.Scene
 import javafx.stage.Stage
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 
 class MainApp : Application() {
@@ -39,7 +40,7 @@ class MainApp : Application() {
 		}
 	}
 }
-
+@Throws(IOException::class)
 fun main(args : Array<String>) {
 	Application.launch(MainApp::class.java, *args)
 }
