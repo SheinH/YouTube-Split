@@ -3,8 +3,6 @@ package com.sheinh.ytsplit
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import org.jaudiotagger.audio.AudioFile
-import org.jaudiotagger.tag.FieldKey
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -58,14 +56,6 @@ class Song(song : String, artist : String, timestamp : Timestamp) : Comparable<S
 	lateinit var album : String
 
 	override fun compareTo(other : Song) : Int = timestamp.compareTo(other.timestamp)
-
-	fun writeTag(audioFile : AudioFile) {
-		audioFile.tag.setField(FieldKey.ARTIST, artist)
-		audioFile.tag.setField(FieldKey.TITLE, song)
-		audioFile.tag.setField(FieldKey.ALBUM, album)
-		if (trackNo != null) audioFile.tag.setField(FieldKey.TRACK, trackNo.toString())
-		audioFile.commit()
-	}
 }
 
 

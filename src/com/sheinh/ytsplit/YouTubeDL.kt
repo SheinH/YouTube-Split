@@ -5,6 +5,7 @@ import com.google.gson.JsonParser
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.File
 import java.io.FileOutputStream
@@ -75,13 +76,17 @@ class YouTubeDL {
 		audioFile = dest.toPath()
 	}
 
-	private fun writeTag(song : Song) {
+	private fun writeTag(song : Song, numTracks : Int) {
 		val file = outputFiles[song]?.toFile()
 		if (file != null) {
-			val audiofile = AudioFileIO.read(file)
+			val audioFile = AudioFileIO.read(file)
 			val art = ArtworkFactory.createArtworkFromFile(albumArt.toFile())
-			audiofile.tag.setField(art)
-			song.writeTag(audiofile)
+			audioFile.tag.setField(art)
+			audioFile.tag.setField(FieldKey.ARTIST, song.artist)
+			audioFile.tag.setField(FieldKey.TITLE, song.song)
+			audioFile.tag.setField(FieldKey.ALBUM, song.album)
+			if (song.trackNo != null) audioFile.tag.setField(FieldKey.TRACK, "${song.trackNo}/$numTracks")
+			audioFile.commit()
 		}
 	}
 
@@ -100,7 +105,6 @@ class YouTubeDL {
 			val command = ArrayList<String>(10)
 			command.addAll(WINDOWS_ARGS)
 			command.addAll(listOf(FFMPEG, "-y", "-i", audioFile.toString()))
-			command.addAll(listOf("-metadata", "ARTIST=\"me\""))
 			encodingParameters.forEach { command.add(it) }
 			command.addAll(listOf("-ss", it.timestamp.toString()))
 			if (it.endTime != null) command.addAll(listOf("-to", it.endTime.toString()))
@@ -113,7 +117,7 @@ class YouTubeDL {
 			proc.waitFor()
 			println(proc.error)
 			outputFiles[it] = directory.resolve(outFileName)
-			writeTag(it)
+			writeTag(it, songs.size)
 			updater()
 		}
 		return System.nanoTime() - startTime
