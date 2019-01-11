@@ -64,7 +64,7 @@ class YouTubeDL {
 		albumArt = albumArtDefault
 	}
 
-	fun download() {
+	private fun download() {
 		val dest = File.createTempFile("audio", "." + getProperty("ext"))
 		Files.delete(dest.toPath())
 		val pb = ProcessBuilder().loadEnv()
