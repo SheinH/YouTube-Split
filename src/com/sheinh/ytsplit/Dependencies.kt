@@ -180,8 +180,8 @@ object Dependencies {
 		val br : BufferedReader
 
 		try {
-			url = URL("https://ffmpeg.zeranoe.com/builds/win64/static/")
 			/*
+			url = URL("https://ffmpeg.zeranoe.com/builds/win64/static/")
 			val form = DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm",Locale.US)
 			inputStr = url.openStream()  // throws an IOException
 			br = BufferedReader(InputStreamReader(inputStr))
@@ -213,7 +213,10 @@ object Dependencies {
 			println(builder)
 			println(links[links.size - 1])
 			val lastFile = url.toString() + links.last().filename*/
-			val website = URL("https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip")
+			val website = URL(
+				if (System.getProperty("os.arch").contains("64")) "https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip"
+				else "https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-latest-win32-static.zip"
+			)
 			val rbc = Channels.newChannel(website.openStream())
 			val fos = FileOutputStream("ffmpeg.zip")
 			fos.channel.transferFrom(rbc, 0, java.lang.Long.MAX_VALUE)
