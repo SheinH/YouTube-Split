@@ -1,6 +1,6 @@
 .root{
-    -fx-faint-focus-color: transparent;
-    -fx-focus-color: #6e88d9; /* here rgba (corrected) */
+    -fx-faint-focus-color: 86a0f1;
+    -fx-focus-color: transparent; /* here rgba (corrected) */
     -fx-background-color: #ececec
 }
 .label{
