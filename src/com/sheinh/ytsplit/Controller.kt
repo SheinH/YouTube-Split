@@ -85,8 +85,8 @@ class Controller(private val stage : Stage) {
 		}
 
 	init {
-		progressBar.maxHeight = Double.MAX_VALUE
-		progressBar.maxWidth = Double.MAX_VALUE
+		progressBar.prefHeight = 29.0
+		progressBar.prefWidth = Double.POSITIVE_INFINITY
 		progressBar.progress = 0.0
 	}
 
@@ -152,12 +152,10 @@ class Controller(private val stage : Stage) {
 				regexButton.fire()
 			}
 		}
-		val fonts = Font.getFontNames()
+		val fonts = Font.getFamilies()
 		fonts.forEach { println(it) }
-		when {
-			fonts.contains("Menlo Regular") -> descriptionBox.font = Font.font("Menlo")
-			fonts.contains("Consolas") -> descriptionBox.font = Font.font("Consolas")
-		}
+		val prefFonts = listOf("Menlo", "Consolas", "Lucida Console", "Monaco").filter { fonts.contains(it) }
+		if (prefFonts.isNotEmpty()) descriptionBox.font = Font.font(prefFonts[0])
 	}
 
 	fun secondPaneInit() {
@@ -277,6 +275,7 @@ class Controller(private val stage : Stage) {
 
 	private var progressBarShown = false
 		set(value) {
+			progressBar.progress = 0.0
 			if (field == value) return
 			if (value) {
 				val index = secondPaneVBox.children.indexOf(secondPaneBottomBar)
@@ -320,7 +319,6 @@ class Controller(private val stage : Stage) {
 					youtubeDL.save(directory, codec, bitrateField.text.toInt(), songs, addProgress)
 					Platform.runLater {
 						progressBarShown = false
-						progressBar.progress = 0.0
 						val alert = Alert(Alert.AlertType.INFORMATION)
 						alert.title = "Save Complete"
 						alert.headerText = null
