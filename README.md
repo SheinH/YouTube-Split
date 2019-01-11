@@ -1,4 +1,4 @@
-# YouTube-Split
+# YouTube Split
 YouTube Split is an application for ripping full-length albums off youtube
 ![Initial View](https://i.imgur.com/CEY0Jkp.png)
 
