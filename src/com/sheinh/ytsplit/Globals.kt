@@ -45,5 +45,20 @@ fun ProcessBuilder.loadEnv() : ProcessBuilder {
 }
 
 fun sanitizeFilename(inputName : String) : String {
-    return inputName.replace("[^a-zA-Z0-9-_.]".toRegex(), "_")
+	fun sanitizeMac(input : String) : String {
+		return input.replace(":", "-").replace("/", ":")
+	}
+
+	fun sanitizeWin(input : String) : String {
+		return input.replace("[/\\\\:*?\"<>|]".toRegex(), "-")
+	}
+
+	fun sanitizeLin(input : String) : String {
+		return input.replace("[/><|:&]".toRegex(), "-")
+	}
+	return when {
+		isMac -> sanitizeMac(inputName)
+		isWindows -> sanitizeWin(inputName)
+		else -> sanitizeLin(inputName)
+	}
 }

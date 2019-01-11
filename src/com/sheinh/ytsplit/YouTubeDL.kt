@@ -95,7 +95,8 @@ class YouTubeDL {
 		}
 		outputFiles = HashMap()
 		songs.parallelStream().forEach {
-			val outFileName = String.format("%02d", it.trackNo) + ". ${it.artist} - ${it.song}.$encoding"
+			var outFileName = "${String.format("%02d", it.trackNo)}. ${it.song} - ${it.artist}.$encoding"
+			outFileName = sanitizeFilename(outFileName)
 			val command = ArrayList<String>(10)
 			command.addAll(WINDOWS_ARGS)
 			command.addAll(listOf(FFMPEG, "-y", "-i", audioFile.toString()))
