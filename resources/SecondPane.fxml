@@ -3,8 +3,7 @@
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import java.lang.String?>
@@ -43,13 +42,22 @@
         </columnResizePolicy>
     </TableView>
     <Label text="Output" />
-    <HBox spacing="8.0">
+    <HBox prefHeight="29.0" spacing="8.0">
         <TextField fx:id="outputFolderField" prefHeight="29.0" promptText="Output Folder" HBox.hgrow="ALWAYS">
             <font>
                 <Font size="13.0" />
             </font>
         </TextField>
-        <Button fx:id="outputFolderChooserButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" prefWidth="40.0" text="..." />
+        <Button fx:id="outputFolderChooserButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false"
+                prefHeight="29.0" prefWidth="40.0">
+            <graphic>
+                <ImageView fitHeight="19.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@folder.png"/>
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
     </HBox>
     <HBox spacing="8.0">
         <TextField fx:id="bitrateField" prefHeight="29.0" promptText="Bitrate (Kbps)" HBox.hgrow="ALWAYS">

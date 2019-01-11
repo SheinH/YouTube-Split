@@ -1,5 +1,4 @@
 .root{
-    -fx-pressed-base: #4c98fe;
     -fx-faint-focus-color: transparent;
     -fx-focus-color: #6e88d9; /* here rgba (corrected) */
     -fx-accent: #aed5ff;
@@ -7,6 +6,9 @@
 }
 .label{
 -fx-font-size : 13
+}
+.progress-indicator{
+    -fx-accent: #0096C9;
 }
  .progress::-webkit-progress-value {
    transition: width 0.5s ease;
