@@ -82,9 +82,9 @@ class YouTubeDL {
 			val audioFile = AudioFileIO.read(file)
 			val art = ArtworkFactory.createArtworkFromFile(albumArt.toFile())
 			audioFile.tag.setField(art)
-			audioFile.tag.setField(FieldKey.ARTIST, song.artist)
-			audioFile.tag.setField(FieldKey.TITLE, song.song)
-			audioFile.tag.setField(FieldKey.ALBUM, song.album)
+			if (song.artist.isNotBlank()) audioFile.tag.setField(FieldKey.ARTIST, song.artist)
+			if (song.song.isNotBlank()) audioFile.tag.setField(FieldKey.TITLE, song.song)
+			if (song.album.isNotBlank()) audioFile.tag.setField(FieldKey.ALBUM, song.album)
 			if (song.trackNo != null) audioFile.tag.setField(FieldKey.TRACK, song.trackNo.toString())
 			audioFile.tag.setField(FieldKey.TRACK_TOTAL, numTracks.toString())
 			audioFile.commit()
@@ -101,7 +101,11 @@ class YouTubeDL {
 		}
 		outputFiles = HashMap()
 		songs.parallelStream().forEach {
-			var outFileName = "${String.format("%02d", it.trackNo)}. ${it.song} - ${it.artist}.$encoding"
+			if (it.artist == null) it.artist = ""
+			if (it.song == null) it.song = ""
+			var outFileName =
+				if (it.artist.isNotEmpty()) "${String.format("%02d", it.trackNo)}. ${it.song} - ${it.artist}.$encoding"
+				else "${String.format("%02d", it.trackNo)}. ${it.song}.$encoding"
 			outFileName = sanitizeFilename(outFileName)
 			val command = ArrayList<String>(10)
 			command.addAll(WINDOWS_ARGS)
