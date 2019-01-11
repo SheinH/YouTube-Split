@@ -17,6 +17,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.scene.text.Font
 import javafx.stage.*
 import javafx.util.Callback
 import javafx.util.converter.DefaultStringConverter
@@ -150,6 +151,12 @@ class Controller(private val stage : Stage) {
 			if (it.code == KeyCode.ENTER) {
 				regexButton.fire()
 			}
+		}
+		val fonts = Font.getFontNames()
+		fonts.forEach { println(it) }
+		when {
+			fonts.contains("Menlo Regular") -> descriptionBox.font = Font.font("Menlo")
+			fonts.contains("Consolas") -> descriptionBox.font = Font.font("Consolas")
 		}
 	}
 
