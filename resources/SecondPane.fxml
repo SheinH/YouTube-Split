@@ -41,6 +41,9 @@
         </font>
     </TextField>
     <TableView fx:id="songsTable" prefHeight="200.0" prefWidth="200.0">
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
     </TableView>
     <Label text="Output"/>
     <HBox spacing="8.0">
@@ -53,12 +56,12 @@
                 prefWidth="40.0" text="..."/>
     </HBox>
     <HBox spacing="8.0">
-        <TextField fx:id="bitrateField" promptText="Bitrate (Kbps)" HBox.hgrow="ALWAYS">
+        <TextField fx:id="bitrateField" prefHeight="29.0" promptText="Bitrate (Kbps)" HBox.hgrow="ALWAYS">
             <font>
                 <Font size="13.0"/>
             </font>
         </TextField>
-        <ComboBox fx:id="formatComboBox" maxHeight="1.7976931348623157E308" prefHeight="19.0" promptText="Format">
+        <ComboBox fx:id="formatComboBox" promptText="Format">
             <items>
                 <FXCollections fx:factory="observableArrayList">
                     <String fx:value=".m4a"/>
@@ -67,9 +70,9 @@
             </items>
         </ComboBox>
     </HBox>
-    <HBox fx:id="secondPaneBottomBar" maxWidth="1.7976931348623157E308" spacing="8.0">
+    <HBox fx:id="secondPaneBottomBar" maxWidth="1.7976931348623157E308" prefHeight="29.0" spacing="8.0">
         <Button fx:id="backButton" cancelButton="true" maxHeight="1.7976931348623157E308" mnemonicParsing="false"
-                prefWidth="40.0">
+                prefHeight="29.0" prefWidth="40.0">
             <graphic>
                 <ImageView fitHeight="100.0" fitWidth="10.0" pickOnBounds="true" preserveRatio="true">
                     <Image url="@back_arrow.png"/>
@@ -77,6 +80,6 @@
             </graphic>
         </Button>
         <Button fx:id="downloadButton" defaultButton="true" disable="true" maxWidth="Infinity" mnemonicParsing="false"
-                text="Save Music" HBox.hgrow="ALWAYS"/>
+                prefHeight="29.0" text="Save Music" HBox.hgrow="ALWAYS"/>
     </HBox>
 </VBox>

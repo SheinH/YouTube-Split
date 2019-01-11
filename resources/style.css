@@ -1,15 +1,11 @@
 .root{
-    -fx-faint-focus-color: 86a0f1;
+    -fx-faint-focus-color: #86a0f1;
     -fx-focus-color: transparent; /* here rgba (corrected) */
-    -fx-background-color: #ececec
+    -fx-background-color: #ececec;
 }
 .label{
 -fx-font-size : 13
 }
- combo-box-base
- {
-     -fx-font-size : 13
- }
  .progress::-webkit-progress-value {
    transition: width 0.5s ease;
  }
@@ -32,6 +28,9 @@
 }
 .button{
     -fx-border-radius: 5;
+}
+.button.stop {
+    -fx-background-color: #edabab;
 }
 .text-field{
     -fx-background-radius: 0px;

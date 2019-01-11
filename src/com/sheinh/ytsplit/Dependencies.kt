@@ -48,7 +48,8 @@ object Dependencies {
 	private fun decompress() {
 		if (File("ffmpeg.exe").exists()) return
 		val fileZip = "ffmpeg.zip"
-		val zis = ZipInputStream(FileInputStream(fileZip))
+		val fis = FileInputStream(fileZip)
+		val zis = ZipInputStream(fis)
 		var zipEntry : ZipEntry? = zis.nextEntry
 		while (zipEntry != null) {
 			if (zipEntry.name.contains(Regex("ffmpeg\\.exe$"))) {
@@ -56,6 +57,12 @@ object Dependencies {
 				break
 			}
 			zipEntry = zis.nextEntry
+		}
+		zis.close()
+		fis.close()
+		try {
+			if (File("ffmpeg.zip").exists()) File("ffmpeg.zip").delete()
+		} finally {
 		}
 	}
 
@@ -147,11 +154,6 @@ object Dependencies {
 		}
 		fos.close()
 		zis.closeEntry()
-		zis.close()
-		try {
-			if (File("ffmpeg.zip").exists()) File("ffmpeg.zip").delete()
-		} finally {
-		}
 	}
 
 	private fun extractYoutubeDL() {
