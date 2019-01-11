@@ -1,7 +1,8 @@
 .root{
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    -fx-faint-focus-color: transparent;
+    -fx-focus-color: #6e88d9; /* here rgba (corrected) */
+    -fx-background-color: #ececec
 }
-
 .label{
 -fx-font-size : 13
 }
@@ -15,11 +16,25 @@
 .warning {
     -fx-background-color: #FF000055;
 }
-.button, .text-field, .combo-box{
-    -fx-background-radius: 4px
+.button,
+.toggle-button,
+.radio-button > .radio,
+.check-box > .box,
+.menu-button,
+.choice-box,
+.color-picker.split-button > .color-picker-label,
+.combo-box-base,
+.combo-box-base:editable > .arrow-button {
+    -fx-background-color: white;
+    -fx-background-radius: 2px;
+    -fx-border-color: #bdbdbd;
+    -fx-border-width: 1px;
 }
-.button .stop{
-    -fx-background-color: #edabab;
+.button{
+    -fx-border-radius: 5;
+}
+.text-field{
+    -fx-background-radius: 0px;
 }
 .success {
     -fx-background-color: #00FF0055;
