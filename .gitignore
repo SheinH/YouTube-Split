@@ -3,3 +3,4 @@ out/*
 META-INF/*
 classes/*
 target/*
+dependency-reduced-pom.xml
