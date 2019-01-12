@@ -1,4 +1,4 @@
-package com.sheinh.ytsplit
+package com.sheinhtike.ytsplit
 
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
@@ -8,7 +8,7 @@ import java.util.regex.Pattern
 
 
 data class Timestamp(val hours : Int = 0, val minutes : Int = 0, val seconds : Int = 0) : Comparable<Timestamp> {
-	private val totalSeconds by lazy { ((hours * 60) + minutes) * 60 + seconds }
+	val totalSeconds by lazy { ((hours * 60) + minutes) * 60 + seconds }
 	override fun compareTo(other : Timestamp) : Int = when {
 		totalSeconds < other.totalSeconds -> -1
 		totalSeconds == other.totalSeconds -> 0

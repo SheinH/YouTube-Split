@@ -1,4 +1,4 @@
-package com.sheinh.ytsplit
+package com.sheinhtike.ytsplit
 
 import javafx.application.Application
 import javafx.fxml.FXMLLoader
@@ -31,7 +31,8 @@ class MainApp : Application() {
 		stage.isResizable = false
 		stage.show()
 		GlobalScope.launch {
-			controller.getDependenciesWin()
+			if (isWindows && !Dependencies.check) controller.getDependenciesWin()
+			Dependencies.loadPaths()
 			fxmlLoader = FXMLLoader(javaClass.getResource("/SecondPane.fxml"))
 			fxmlLoader.setController(controller)
 			root = fxmlLoader.load<Any>() as Parent
@@ -40,6 +41,7 @@ class MainApp : Application() {
 		}
 	}
 }
+
 @Throws(IOException::class)
 fun main(args : Array<String>) {
 	Application.launch(MainApp::class.java, *args)

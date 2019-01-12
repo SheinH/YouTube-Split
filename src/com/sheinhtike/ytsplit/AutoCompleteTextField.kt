@@ -1,4 +1,4 @@
-package com.sheinh.ytsplit
+package com.sheinhtike.ytsplit
 
 import javafx.event.EventHandler
 import javafx.geometry.Side

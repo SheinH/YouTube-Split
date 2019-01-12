@@ -1,4 +1,4 @@
-package com.sheinh.ytsplit
+package com.sheinhtike.ytsplit
 
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -15,6 +15,7 @@ import java.net.MalformedURLException
 import java.net.URL
 import java.nio.channels.Channels
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.*
@@ -23,27 +24,45 @@ import java.util.zip.ZipInputStream
 
 
 object Dependencies {
+	lateinit var ffmpegPath : Path
+	lateinit var youtubeDLPath : Path
+
 	val check by lazy {
-		var yt = checkExe("youtube-dl")
-		var ffmpeg = checkExe("ffmpeg")
+		var yt = isInPath("youtube-dl")
+		var ffmpeg = isInPath("ffmpeg")
 		if (isWindows) {
-			yt == yt || File("youtube-dl.exe").exists()
-			ffmpeg = ffmpeg || File("ffmpeg.exe").exists()
-			if (File("ffmpeg.exe").exists()) FFMPEG = File("ffmpeg.exe").absolutePath
-			if (yt && ffmpeg) {
+			yt = File("youtube-dl.exe").exists()
+			ffmpeg = File("ffmpeg.exe").exists()
+			if (ffmpeg) {
 				if (File("ffmpeg.zip").exists()) File("ffmpeg.zip").delete()
 			}
 		}
-		if (isMac) {
-			if (yt && ffmpeg) return@lazy true
-			val dir = File("/usr/local/bin/").toPath()
-			YOUTUBE = dir.resolve("youtube-dl").toString()
-			FFMPEG = dir.resolve("ffmpeg").toString()
-			yt = checkExe(YOUTUBE)
-			ffmpeg = checkExe(FFMPEG)
-		}
 		return@lazy yt && ffmpeg
 	}
+
+	fun loadPaths() {
+		if (isWindows) {
+			val ytPath = Paths.get("ffmpeg.exe")
+			val ffPath = Paths.get("youtube-dl.exe")
+			if (ytPath == null || ffPath == null) {
+				throw FileNotFoundException("Files not found in path")
+			}
+			ffmpegPath = ffPath
+			youtubeDLPath = ytPath
+		} else {
+			val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
+			val paths = ArrayList(directories.map { Paths.get(it) })
+			paths.add(Paths.get("."))
+			val ytPath = paths.findLast { Files.exists(it.resolve("youtube-dl")) }
+			val ffPath = paths.findLast { Files.exists(it.resolve("ffmpeg")) }
+			if (ytPath == null || ffPath == null) {
+				throw FileNotFoundException("Files not found in path")
+			}
+			ffmpegPath = ffPath.resolve("ffmpeg")
+			youtubeDLPath = ytPath.resolve("youtube-dl")
+		}
+	}
+
 	private fun decompress() {
 		if (File("ffmpeg.exe").exists()) return
 		val fileZip = "ffmpeg.zip"
@@ -111,32 +130,32 @@ object Dependencies {
 		stage.show()
 	}
 
-	fun getDependencies() {
-		if (!checkExe("ffmpeg") && isWindows) {
-			val localFile = File("ffmpeg.exe")
+	fun getDependenciesWin() {
+		if (!isInPath("ffmpeg") && isWindows) {
+			val localFile = Paths.get(".", "ffmpeg.exe")
 			if (!localFile.exists()) {
-				Dependencies.downloadZip()
-				Dependencies.decompress()
+				downloadZip()
+				decompress()
 			}
-			FFMPEG = localFile.absolutePath
+			ffmpegPath = localFile.toAbsolutePath()
 		}
-		if (!checkExe("youtube-dl") && isWindows) {
-			val localFile = File("youtube-dl.exe")
+		if (!isInPath("youtube-dl") && isWindows) {
+			val localFile = Paths.get(".", "youtube-dl.exe")
 			if (!localFile.exists()) {
-				Dependencies.extractYoutubeDL()
-				YOUTUBE = "youtube-dl.exe"
+				extractYoutubeDL()
 			}
+			youtubeDLPath = localFile.toAbsolutePath()
 		}
 	}
 
 
-	private fun checkExe(command : String) : Boolean {
+	private fun isInPath(command : String) : Boolean {
 		if (File(command).exists()) return true
 		val filename = if (isWindows) "$command.exe" else command
 		val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
 		directories.add(System.getProperty("user.dir"))
 		val paths = directories.map { Paths.get(it, filename) }
-		val out = paths.find { Files.exists(it) }
+		val out = paths.find { it.exists() }
 		println(out)
 		return out != null
 	}
@@ -180,39 +199,6 @@ object Dependencies {
 		val br : BufferedReader
 
 		try {
-			/*
-			url = URL("https://ffmpeg.zeranoe.com/builds/win64/static/")
-			val form = DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm",Locale.US)
-			inputStr = url.openStream()  // throws an IOException
-			br = BufferedReader(InputStreamReader(inputStr))
-
-			val builder = StringBuilder()
-			var line = br.readLine()
-			while (line != null) {
-				builder.append(line)
-				builder.append('\n')
-				line = br.readLine()
-			}
-			val out = builder.toString()
-			val matcher =
-				Pattern.compile("a href=\"([^\"]+)\".+<td>(\\d{4}-\\w{3}-\\d{1,2} \\d{2}:\\d{2})").matcher(out)
-			val links = ArrayList<Link>()
-			matcher.find()
-			while (!matcher.hitEnd()) {
-				println(matcher.group(2))
-				println(LocalDateTime.parse("2018-May-02 07:18",form))
-				val date = LocalDateTime.parse(matcher.group(2))
-				links += Link(matcher.group(1), date)
-				matcher.find()
-			}
-			links.sortBy {
-				it.date
-			}
-			links.forEach { println(it.date) }
-			println(links.last())
-			println(builder)
-			println(links[links.size - 1])
-			val lastFile = url.toString() + links.last().filename*/
 			val website = URL(
 				if (System.getProperty("os.arch").contains("64")) "https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip"
 				else "https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-latest-win32-static.zip"

@@ -1,9 +1,12 @@
-package com.sheinh.ytsplit
+package com.sheinhtike.ytsplit
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import net.bramp.ffmpeg.FFmpeg
+import net.bramp.ffmpeg.FFmpegExecutor
+import net.bramp.ffmpeg.builder.FFmpegBuilder
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
@@ -13,6 +16,7 @@ import java.net.URL
 import java.nio.channels.Channels
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 
@@ -38,7 +42,7 @@ class YouTubeDL {
 
 	fun loadJsonData() {
 		val pb = ProcessBuilder().loadEnv()
-		pb.command(*WINDOWS_ARGS, YOUTUBE, "-J", "-f", "bestaudio", url)
+		pb.command(*WINDOWS_ARGS, "youtube-dl", "-J", "-f", "bestaudio", url)
 		val process = pb.start()
 		val input = process.input
 		process.waitFor()
@@ -69,7 +73,9 @@ class YouTubeDL {
 		val dest = File.createTempFile("audio", "." + getProperty("ext"))
 		Files.delete(dest.toPath())
 		val pb = ProcessBuilder().loadEnv()
-		pb.command(*WINDOWS_ARGS, YOUTUBE, "-f", "bestaudio", "--no-continue", "-o", dest.path, url)
+		pb.command(
+			*WINDOWS_ARGS, "youtube-dl", "-f", "bestaudio", "--no-continue", "-o", dest.path, url
+		)
 		val process = pb.start()
 		println(process.input)
 		println(process.error)
@@ -100,16 +106,21 @@ class YouTubeDL {
 			else -> listOf("-b:a", bitrate.toString() + "k")
 		}
 		outputFiles = HashMap()
+		val ffmpeg = FFmpeg(Dependencies.ffmpegPath.toString())
 		songs.parallelStream().forEach {
+
+			// setup filename
 			if (it.artist == null) it.artist = ""
 			if (it.song == null) it.song = ""
-			var outFileName =
-				if (it.artist.isNotEmpty()) "${String.format("%02d", it.trackNo)}. ${it.song} - ${it.artist}.$encoding"
-				else "${String.format("%02d", it.trackNo)}. ${it.song}.$encoding"
+			var outFileName = if (it.artist.isNotEmpty()) "${String.format("%02d", it.trackNo)}. ${it.song} - ${it.artist}.$encoding"
+			else "${String.format("%02d", it.trackNo)}. ${it.song}.$encoding"
 			outFileName = sanitizeFilename(outFileName)
+
+			// setup command
+			/*
 			val command = ArrayList<String>(10)
 			command.addAll(WINDOWS_ARGS)
-			command.addAll(listOf(FFMPEG, "-y", "-i", audioFile.toString()))
+			command.addAll(listOf(Dependencies.ffmpegPath.toString(), "-y", "-i", audioFile.toString()))
 			encodingParameters.forEach { command.add(it) }
 			command.addAll(listOf("-ss", it.timestamp.toString()))
 			if (it.endTime != null) command.addAll(listOf("-to", it.endTime.toString()))
@@ -121,6 +132,15 @@ class YouTubeDL {
 			println(proc.input)
 			proc.waitFor()
 			println(proc.error)
+			outputFiles[it] = directory.resolve(outFileName)
+			writeTag(it, songs.size)
+			updater()*/
+			val builder = FFmpegBuilder().setInput(audioFile.toString()).overrideOutputFiles(true)
+				.addOutput(directory.resolve(outFileName).toString()).setAudioBitRate((1024 * bitrate).toLong())
+				.setStartOffset(it.timestamp.totalSeconds.toLong(), TimeUnit.SECONDS)
+			if (it.endTime != null) builder.addExtraArgs("-to", it.endTime.toString())
+			val executor = FFmpegExecutor(ffmpeg)
+			executor.createJob(builder.done()).run()
 			outputFiles[it] = directory.resolve(outFileName)
 			writeTag(it, songs.size)
 			updater()
