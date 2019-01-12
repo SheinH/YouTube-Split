@@ -61,17 +61,28 @@ class Song(song : String, artist : String, timestamp : Timestamp) : Comparable<S
 
 internal object RegexStuff {
 
-	private const val timestampRegex = "(?<timestamp>(?:\\d{1,2})(?::\\d\\d){1,2})"
-	private const val artistRegex = "(?<artist>.*)"
-	private const val songRegex = "(?<song>.*)"
+	private val regexMap = mapOf(
+		"{TIME}" to "(?<timestamp>(?:\\d{1,2})(?::\\d\\d){1,2}) *",
+		"{ARTIST}" to "(?<artist>.+)",
+		"{SONG}" to "(?<song>.+)"
+	)
 
 	fun inputToRegex(input : String) : Pattern {
-		var string = input
-		if (!string.contains("{TIME}")) throw IllegalArgumentException("Bad pattern")
-		string = string.replace("{ARTIST}", artistRegex)
-		string = string.replace("{SONG}", songRegex)
-		string = string.replace("{TIME}", timestampRegex)
-		return Pattern.compile(string)
+		if (!input.contains("{TIME}")) throw IllegalArgumentException("Bad pattern")
+		val allPatterns = regexMap.keys.joinToString("|") {
+			it.replace(Regex("[\\{\\}]"), "\\\\$0")
+		}
+		val keyOrder = regexMap.keys.filter { input.contains(it) }.sortedBy { input.indexOf(it) }
+		val between = input.split(Regex(allPatterns))
+		println("Keyorder: $keyOrder, Between: $between")
+		val builder = StringBuilder()
+		for ((index, string) in between.withIndex()) {
+			val sanitized = string.replace(Regex("[-.\\+*/?\\[^\\]$(){}=!<>|:\\\\]"), "\\\\$0")
+			builder.append(sanitized)
+			if (index < keyOrder.size) builder.append(regexMap[keyOrder[index]])
+		}
+		println("Final pattern: $builder")
+		return Pattern.compile(builder.toString())
 	}
 
 	fun matchSongs(matcher : Matcher) : ArrayList<Song> {
