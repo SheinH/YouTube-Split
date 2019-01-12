@@ -15,6 +15,8 @@ import javafx.scene.control.cell.TextFieldTableCell
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCodeCombination
+import javafx.scene.input.KeyCombination
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
@@ -66,6 +68,8 @@ class Controller(private val stage : Stage) {
 	private lateinit var secondPaneBottomBar : HBox
 	@FXML
 	private lateinit var secondPaneVBox : VBox
+	@FXML
+	private lateinit var mainVBox : VBox
 
 	private var progressBar = ProgressBar()
 
@@ -139,11 +143,19 @@ class Controller(private val stage : Stage) {
 	}
 
 	internal fun firstPaneInit() {
+		mainVBox.setOnKeyPressed {
+			if (KeyCodeCombination(KeyCode.L, KeyCombination.SHORTCUT_DOWN).match(it)) {
+				urlField.requestFocus()
+				urlField.selectAll()
+				it.consume()
+			}
+		}
 		getDescriptionButton.setOnAction { handleDescriptionButton() }
 		regexButton.setOnAction { handleRegexButton() }
 		urlField.setOnKeyPressed {
 			if (it.code == KeyCode.ENTER) {
 				getDescriptionButton.fire()
+				it.consume()
 			}
 		}
 		regexField.entries.addAll(listOf("{ARTIST}", "{TIME}", "{SONG}"))
@@ -290,6 +302,8 @@ class Controller(private val stage : Stage) {
 	private fun handleFolderChoose() {
 		val folder = outputFolderChooser.showDialog(stage)
 		outputFolderField.text = folder?.absolutePath
+		bitrateField.requestFocus()
+		bitrateField.selectAll()
 	}
 
 	private fun handleDownloadButton() {
@@ -385,6 +399,7 @@ class Controller(private val stage : Stage) {
 		regexField.requestFocus()
 		descriptionBox.disableProperty().value = true
 		regexButton.disableProperty().value = true
+		urlField.disableProperty().value = true
 		val oldtext = getDescriptionButton.graphic
 		getDescriptionButton.text = ""
 		val indicator = ProgressIndicator()
@@ -410,8 +425,9 @@ class Controller(private val stage : Stage) {
 					descriptionBox.isDisable = true
 				}
 			} finally {
+				urlField.disableProperty().value = false
 				regexField.styleClass -= "error"
-				getDescriptionButton.disableProperty().value = false
+				if (youtubeDL.jsonLoaded) getDescriptionButton.disableProperty().value = false
 				Platform.runLater {
 					getDescriptionButton.graphic = oldtext
 				}

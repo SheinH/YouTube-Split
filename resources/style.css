@@ -31,7 +31,7 @@
 .button{
     -fx-border-radius: 5;
 }
-.text-field{
+.text-field, .text-area{
     -fx-background-radius: 0px;
     -fx-highlight-text-fill: black;
     -fx-text-fill: black;

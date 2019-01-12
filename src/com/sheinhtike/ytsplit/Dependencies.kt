@@ -27,10 +27,10 @@ object Dependencies {
 	lateinit var ffmpegPath : Path
 	lateinit var youtubeDLPath : Path
 
-	val check by lazy {
+	val arePresent by lazy {
 		var yt = isInPath("youtube-dl")
 		var ffmpeg = isInPath("ffmpeg")
-		if (isWindows) {
+		if (OS.isWindows) {
 			yt = File("youtube-dl.exe").exists()
 			ffmpeg = File("ffmpeg.exe").exists()
 			if (ffmpeg) {
@@ -41,7 +41,7 @@ object Dependencies {
 	}
 
 	fun loadPaths() {
-		if (isWindows) {
+		if (OS.isWindows) {
 			val ytPath = Paths.get("ffmpeg.exe")
 			val ffPath = Paths.get("youtube-dl.exe")
 			if (ytPath == null || ffPath == null) {
@@ -76,6 +76,7 @@ object Dependencies {
 			}
 			zipEntry = zis.nextEntry
 		}
+		zis.closeEntry()
 		zis.close()
 		fis.close()
 		try {
@@ -131,7 +132,7 @@ object Dependencies {
 	}
 
 	fun getDependenciesWin() {
-		if (!isInPath("ffmpeg") && isWindows) {
+		if (!isInPath("ffmpeg") && OS.isWindows) {
 			val localFile = Paths.get(".", "ffmpeg.exe")
 			if (!localFile.exists()) {
 				downloadZip()
@@ -139,7 +140,7 @@ object Dependencies {
 			}
 			ffmpegPath = localFile.toAbsolutePath()
 		}
-		if (!isInPath("youtube-dl") && isWindows) {
+		if (!isInPath("youtube-dl") && OS.isWindows) {
 			val localFile = Paths.get(".", "youtube-dl.exe")
 			if (!localFile.exists()) {
 				extractYoutubeDL()
@@ -151,7 +152,7 @@ object Dependencies {
 
 	private fun isInPath(command : String) : Boolean {
 		if (File(command).exists()) return true
-		val filename = if (isWindows) "$command.exe" else command
+		val filename = if (OS.isWindows) "$command.exe" else command
 		val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
 		directories.add(System.getProperty("user.dir"))
 		val paths = directories.map { Paths.get(it, filename) }
@@ -170,8 +171,8 @@ object Dependencies {
 			fos.write(buffer, 0, len)
 			len = zis.read(buffer)
 		}
-		fos.close()
 		zis.closeEntry()
+		fos.close()
 	}
 
 	private fun extractYoutubeDL() {

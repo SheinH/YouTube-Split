@@ -6,19 +6,20 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
+object OS {
+	val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+	val isMac : Boolean
 
-val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
-
-val isMac : Boolean
-	get() {
+	init {
 		val os = System.getProperty("os.name").toLowerCase()
-		return (os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0)
+		isMac = (os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0)
 	}
+}
 
 var currentDir : Path = Paths.get(".")
 
 
-internal var WINDOWS_ARGS = if (isWindows) arrayOf("cmd.exe", "/c") else emptyArray()
+internal var WINDOWS_ARGS = if (OS.isWindows) arrayOf("cmd.exe", "/c") else emptyArray()
 val Process.input : String
 	get() {
 		val stringBuilder = StringBuilder()
@@ -65,8 +66,8 @@ fun sanitizeFilename(inputName : String) : String {
 		return input.replace("[/><|:&]".toRegex(), "-")
 	}
 	return when {
-		isMac -> sanitizeMac(inputName)
-		isWindows -> sanitizeWin(inputName)
+		OS.isMac -> sanitizeMac(inputName)
+		OS.isWindows -> sanitizeWin(inputName)
 		else -> sanitizeLin(inputName)
 	}
 }

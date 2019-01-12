@@ -13,7 +13,7 @@ import java.io.IOException
 class MainApp : Application() {
 	private lateinit var controller : Controller
 	override fun start(stage : Stage) {
-		if (isMac && !Dependencies.check) {
+		if (OS.isMac && !Dependencies.arePresent) {
 			Dependencies.handleMacDependencies(stage)
 		} else startMainApp(stage)
 	}
@@ -31,7 +31,7 @@ class MainApp : Application() {
 		stage.isResizable = false
 		stage.show()
 		GlobalScope.launch {
-			if (isWindows && !Dependencies.check) controller.getDependenciesWin()
+			if (OS.isWindows && !Dependencies.arePresent) controller.getDependenciesWin()
 			Dependencies.loadPaths()
 			fxmlLoader = FXMLLoader(javaClass.getResource("/SecondPane.fxml"))
 			fxmlLoader.setController(controller)
