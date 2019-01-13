@@ -101,42 +101,23 @@ class YouTubeDL {
 		val startTime = System.nanoTime()
 		download()
 		updater()
-		val encodingParameters = when (encoding) {
-			"opus" -> listOf("-b:a", bitrate.toString() + "k", "-c:a", "libopus")
-			else -> listOf("-b:a", bitrate.toString() + "k")
-		}
 		outputFiles = HashMap()
 		val ffmpeg = FFmpeg(Dependencies.ffmpegPath.toString())
 		songs.parallelStream().forEach {
-
 			// setup filename
 			if (it.artist == null) it.artist = ""
 			if (it.song == null) it.song = ""
-			var outFileName = if (it.artist.isNotEmpty()) "${String.format("%02d", it.trackNo)}. ${it.song} - ${it.artist}.$encoding"
-			else "${String.format("%02d", it.trackNo)}. ${it.song}.$encoding"
+			var outFileName =
+				if (it.artist.isNotEmpty()) "${String.format("%02d", it.trackNo)}. ${it.song} - ${it.artist}.$encoding"
+				else "${String.format("%02d", it.trackNo)}. ${it.song}.$encoding"
 			outFileName = sanitizeFilename(outFileName)
 
 			// setup command
-			/*
-			val command = ArrayList<String>(10)
-			command.addAll(WINDOWS_ARGS)
-			command.addAll(listOf(Dependencies.ffmpegPath.toString(), "-y", "-i", audioFile.toString()))
-			encodingParameters.forEach { command.add(it) }
-			command.addAll(listOf("-ss", it.timestamp.toString()))
-			if (it.endTime != null) command.addAll(listOf("-to", it.endTime.toString()))
-			command.add(outFileName)
-			val pb = ProcessBuilder().loadEnv()
-			pb.directory(directory.toFile())
-			pb.command(command)
-			val proc = pb.start()
-			println(proc.input)
-			proc.waitFor()
-			println(proc.error)
-			outputFiles[it] = directory.resolve(outFileName)
-			writeTag(it, songs.size)
-			updater()*/
-			val builder = FFmpegBuilder().setInput(audioFile.toString()).overrideOutputFiles(true)
-				.addOutput(directory.resolve(outFileName).toString()).setAudioBitRate((1024 * bitrate).toLong())
+			val builder = FFmpegBuilder()
+				.setInput(audioFile.toString())
+				.overrideOutputFiles(true)
+				.addOutput(directory.resolve(outFileName).toString())
+				.setAudioBitRate((1024 * bitrate).toLong())
 				.setStartOffset(it.timestamp.totalSeconds.toLong(), TimeUnit.SECONDS)
 			if (it.endTime != null) builder.addExtraArgs("-to", it.endTime.toString())
 			val executor = FFmpegExecutor(ffmpeg)

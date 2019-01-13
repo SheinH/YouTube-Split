@@ -84,9 +84,34 @@ class Controller(private val stage : Stage) {
 	private val outputDirectory get() = File(outputFolderField.text).toPath()
 	private val codec
 		get() = when (formatComboBox.selectionModel.selectedIndex) {
-			0 -> "m4a"
-			1 -> "m4a"
+			0    -> "m4a"
+			1    -> "mp3"
 			else -> "m4a"
+		}
+
+	private var progressBarShown = false
+		set(value) {
+			progressBar
+				.progress = 0.0
+			if (field == value) return
+			if (value) {
+				secondPaneVBox
+					.children
+					.remove(secondPaneBottomBar)
+				secondPaneVBox
+					.children
+					.add(progressBar)
+				VBox
+					.setMargin(progressBar, Insets(12.0, 0.0, 12.0, 0.0))
+			} else {
+				secondPaneVBox
+					.children
+					.remove(progressBar)
+				secondPaneVBox
+					.children
+					.add(secondPaneBottomBar)
+			}
+			field = value
 		}
 
 	init {
@@ -94,10 +119,8 @@ class Controller(private val stage : Stage) {
 		progressBar.prefWidth = Double.MAX_VALUE
 		progressBar.progress = 0.0
 	}
-
 	class MyDialog : Stage() {
 		val taskDone = SimpleBooleanProperty(false)
-
 		init {
 			setOnCloseRequest { if (!taskDone.value) it.consume() }
 		}
@@ -283,21 +306,6 @@ class Controller(private val stage : Stage) {
 		stage.scene.root = firstPane
 		stage.sizeToScene()
 	}
-
-	private var progressBarShown = false
-		set(value) {
-			progressBar.progress = 0.0
-			if (field == value) return
-			if (value) {
-				secondPaneVBox.children.remove(secondPaneBottomBar)
-				secondPaneVBox.children.add(progressBar)
-				VBox.setMargin(progressBar, Insets(12.0, 0.0, 12.0, 0.0))
-			} else {
-				secondPaneVBox.children.remove(progressBar)
-				secondPaneVBox.children.add(secondPaneBottomBar)
-			}
-			field = value
-		}
 
 	private fun handleFolderChoose() {
 		val folder = outputFolderChooser.showDialog(stage)

@@ -45,7 +45,7 @@ val Process.error : String
 		return stringBuilder.toString()
 	}
 
-inline fun Path.exists() = Files.exists(this)
+fun Path.exists() = Files.exists(this)
 
 
 fun ProcessBuilder.loadEnv() : ProcessBuilder {
@@ -66,8 +66,8 @@ fun sanitizeFilename(inputName : String) : String {
 		return input.replace("[/><|:&]".toRegex(), "-")
 	}
 	return when {
-		OS.isMac -> sanitizeMac(inputName)
+		OS.isMac     -> sanitizeMac(inputName)
 		OS.isWindows -> sanitizeWin(inputName)
-		else -> sanitizeLin(inputName)
+		else         -> sanitizeLin(inputName)
 	}
 }
