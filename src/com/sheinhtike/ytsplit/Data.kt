@@ -58,10 +58,9 @@ class Song(song : String, artist : String, timestamp : Timestamp) : Comparable<S
 	override fun compareTo(other : Song) : Int = timestamp.compareTo(other.timestamp)
 }
 
+internal object SongRegex {
 
-internal object RegexStuff {
-
-	private val regexMap = mapOf(
+	internal val regexMap = mapOf(
 		"{TIME}" to "(?<timestamp>(?:\\d{1,2})(?::\\d\\d){1,2}) *",
 		"{ARTIST}" to "(?<artist>.+)",
 		"{SONG}" to "(?<song>.+)"

@@ -257,8 +257,8 @@ class Controller(private val stage : Stage) {
 				cell.contextMenu.items.add(item1)
 				cell
 			}
-			song.minWidth = 170.0
-			artist.minWidth = 170.0
+			track.minWidth = 30.0
+			track.maxWidth = 30.0
 			artist.setOnEditCommit {
 				if (songs.none { it.artist.isNotBlank() }) songs.forEach { s -> s.artist = it.newValue }
 			}
@@ -449,9 +449,9 @@ class Controller(private val stage : Stage) {
 
 	private fun handleRegexButton() {
 		try {
-			val pattern = RegexStuff.inputToRegex(regexField.text)
+			val pattern = SongRegex.inputToRegex(regexField.text)
 			val matcher = pattern.matcher(descriptionBox.text + System.lineSeparator())
-			songs = RegexStuff.matchSongs(matcher)
+			songs = SongRegex.matchSongs(matcher)
 			secondPaneSwitch()
 			regexField.styleClass -= "error"
 		} catch (e : Exception) {

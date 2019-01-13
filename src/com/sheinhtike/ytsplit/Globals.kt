@@ -6,6 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
+
 object OS {
 	val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
 	val isMac : Boolean

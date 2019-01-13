@@ -28,25 +28,29 @@ class AutoCompleteTextField : TextField() {
 	val entries : SortedSet<String>
 	/** The popup used to select an entry.  */
 	private val entriesPopup : ContextMenu
+	val textBeforeCaret
+		get() = text.substring(0, caretPosition)
 
 	/** Construct a new AutoCompleteTextField.  */
 	init {
 		entries = TreeSet()
 		entriesPopup = ContextMenu()
-		textProperty().addListener { observableValue, s, s2 ->
+		caretPositionProperty().addListener { observableValue, s, s2 ->
 			if (text.isEmpty()) {
 				entriesPopup.hide()
 			} else {
 				val searchResult = LinkedList<String>()
-				val matcher = Pattern.compile("(\\S+)\$").matcher(text)
+				val matcher = Pattern.compile("(\\S+)\$")
+					.matcher(textBeforeCaret)
 				matcher.find()
 				try {
 					val lastword = matcher.group(1).toUpperCase()
+					println(lastword)
 					searchResult.addAll(entries.filter { it.indexOf(lastword) > -1 })
 					if (entries.size > 0) {
 						populatePopup(searchResult, lastword)
 						if (!entriesPopup.isShowing) {
-							entriesPopup.show(this@AutoCompleteTextField, Side.BOTTOM, 0.0, 0.0)
+							entriesPopup.show(this, Side.BOTTOM, 0.0, 0.0)
 						}
 					} else {
 						entriesPopup.hide()
@@ -87,8 +91,10 @@ class AutoCompleteTextField : TextField() {
 
 			val item = CustomMenuItem(entryLabel, true)
 			item.onAction = EventHandler {
-				text = text.replace(Regex("(\\S+)\$"), result)
-				positionCaret(text.length)
+				val after = text.substring(caretPosition)
+				val before = textBeforeCaret.replace(Regex("(\\S+)\$"), result)
+				text = before + after
+				positionCaret(before.length)
 				entriesPopup.hide()
 			}
 			menuItems.add(item)
