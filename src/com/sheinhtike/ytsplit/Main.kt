@@ -13,13 +13,13 @@ import java.io.IOException
 class MainApp : Application() {
 	private lateinit var controller : Controller
 	override fun start(stage : Stage) {
+		controller = Controller(stage)
 		if (OS.isMac && !Dependencies.arePresent) {
-			Dependencies.handleMacDependencies(stage)
+			Dependencies.showMacInstructions(stage)
 		} else startMainApp(stage)
 	}
 
 	private fun startMainApp(stage : Stage) {
-		controller = Controller(stage)
 		var fxmlLoader = FXMLLoader(javaClass.getResource("/FirstPane.fxml"))
 		fxmlLoader.setController(controller)
 		var root = fxmlLoader.load<Any>() as Parent

@@ -64,6 +64,20 @@ object Dependencies {
 	}
 
 	private fun decompress() {
+		fun decompressFile(zis : ZipInputStream) {
+			val buffer = ByteArray(1024)
+			val newFile = File("ffmpeg.exe")
+			val fos = FileOutputStream(newFile)
+			var len : Int
+			len = zis.read(buffer)
+			while (len > 0) {
+				fos.write(buffer, 0, len)
+				len = zis.read(buffer)
+			}
+			zis.closeEntry()
+			fos.close()
+		}
+
 		if (File("ffmpeg.exe").exists()) return
 		val fileZip = "ffmpeg.zip"
 		val fis = FileInputStream(fileZip)
@@ -86,7 +100,7 @@ object Dependencies {
 	}
 
 
-	fun handleMacDependencies(stage : Stage) {
+	fun showMacInstructions(stage : Stage) {
 		val mycontroller = object {
 			@FXML
 			lateinit var tf1 : TextField
@@ -149,7 +163,6 @@ object Dependencies {
 		}
 	}
 
-
 	private fun isInPath(command : String) : Boolean {
 		if (File(command).exists()) return true
 		val filename = if (OS.isWindows) "$command.exe" else command
@@ -159,20 +172,6 @@ object Dependencies {
 		val out = paths.find { it.exists() }
 		println(out)
 		return out != null
-	}
-
-	private fun decompressFile(zis : ZipInputStream) {
-		val buffer = ByteArray(1024)
-		val newFile = File("ffmpeg.exe")
-		val fos = FileOutputStream(newFile)
-		var len : Int
-		len = zis.read(buffer)
-		while (len > 0) {
-			fos.write(buffer, 0, len)
-			len = zis.read(buffer)
-		}
-		zis.closeEntry()
-		fos.close()
 	}
 
 	private fun extractYoutubeDL() {
