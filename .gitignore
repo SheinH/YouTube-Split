@@ -5,3 +5,4 @@ classes/*
 target/*
 dependency-reduced-pom.xml
 *.exe
+*.iml
