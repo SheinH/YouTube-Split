@@ -1,6 +1,7 @@
 package com.sheinhtike.ytsplit
 
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 import java.nio.file.Files
 import java.nio.file.Path
@@ -10,15 +11,14 @@ import java.nio.file.Paths
 object OS {
 	val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
 	val isMac : Boolean
+	var PATH = ArrayList(System.getenv("PATH").split(File.pathSeparatorChar).map { Paths.get(it) })
 
 	init {
 		val os = System.getProperty("os.name").toLowerCase()
 		isMac = (os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0)
+		if (isMac && !PATH.map { it.toString() }.contains("/usr/local/bin")) PATH.add(Paths.get("/usr/local/bin"))
 	}
 }
-
-var currentDir : Path = Paths.get(".")
-
 
 internal var WINDOWS_ARGS = if (OS.isWindows) arrayOf("cmd.exe", "/c") else emptyArray()
 val Process.input : String

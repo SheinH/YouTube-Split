@@ -18,7 +18,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.LocalDateTime
-import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -50,11 +49,8 @@ object Dependencies {
 			ffmpegPath = ffPath
 			youtubeDLPath = ytPath
 		} else {
-			val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
-			val paths = ArrayList(directories.map { Paths.get(it) })
-			paths.add(Paths.get("."))
-			val ytPath = paths.findLast { Files.exists(it.resolve("youtube-dl")) }
-			val ffPath = paths.findLast { Files.exists(it.resolve("ffmpeg")) }
+			val ytPath = OS.PATH.findLast { Files.exists(it.resolve("youtube-dl")) }
+			val ffPath = OS.PATH.findLast { Files.exists(it.resolve("ffmpeg")) }
 			if (ytPath == null || ffPath == null) {
 				throw FileNotFoundException("Files not found in path")
 			}
@@ -165,12 +161,8 @@ object Dependencies {
 
 	private fun isInPath(command : String) : Boolean {
 		if (File(command).exists()) return true
-		val filename = if (OS.isWindows) "$command.exe" else command
-		val directories = ArrayList(System.getenv("PATH").split(File.pathSeparator))
-		directories.add(System.getProperty("user.dir"))
-		val paths = directories.map { Paths.get(it, filename) }
-		val out = paths.find { it.exists() }
-		println(out)
+		val possibleLocations = OS.PATH.map { it.resolve(command) }
+		val out = possibleLocations.find { Files.exists(it) }
 		return out != null
 	}
 
@@ -194,9 +186,7 @@ object Dependencies {
 		System.setProperty("http.agent", "Chrome")
 		data class Link(val filename : String, val date : LocalDateTime)
 		if (File("ffmpeg.zip").exists()) return
-		val url : URL
-		var inputStr : InputStream? = null
-		val br : BufferedReader
+		val inputStr : InputStream? = null
 
 		try {
 			val website = URL(
