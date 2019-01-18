@@ -21,6 +21,7 @@ class MainApp : Application() {
 
 	private fun startMainApp(stage : Stage) {
 		var fxmlLoader = FXMLLoader(javaClass.getResource("/FirstPane.fxml"))
+		Dependencies.loadPaths()
 		fxmlLoader.setController(controller)
 		var root = fxmlLoader.load<Any>() as Parent
 		controller.firstPaneInit()

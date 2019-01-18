@@ -42,7 +42,7 @@ class YouTubeDL {
 
 	fun loadJsonData() {
 		val pb = ProcessBuilder().loadEnv()
-		pb.command(*WINDOWS_ARGS, "youtube-dl", "-J", "-f", "bestaudio", url)
+		pb.command(*WINDOWS_ARGS, Dependencies.youtubeDLPath.toString(), "-J", "-f", "bestaudio", url)
 		val process = pb.start()
 		val input = process.input
 		process.waitFor()
@@ -74,7 +74,7 @@ class YouTubeDL {
 		Files.delete(dest.toPath())
 		val pb = ProcessBuilder().loadEnv()
 		pb.command(
-			*WINDOWS_ARGS, "youtube-dl", "-f", "bestaudio", "--no-continue", "-o", dest.path, url
+				*WINDOWS_ARGS, Dependencies.youtubeDLPath.toString(), "-f", "bestaudio", "--no-continue", "-o", dest.path, url
 		)
 		val process = pb.start()
 		println(process.input)
