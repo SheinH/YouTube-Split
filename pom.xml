@@ -6,7 +6,7 @@
 
     <groupId>com.sheinhtike</groupId>
     <artifactId>YouTube-Split</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -111,12 +111,6 @@
     </dependencies>
     <build>
         <sourceDirectory>src</sourceDirectory>
-        <outputDirectory>out</outputDirectory>
-        <resources>
-            <resource>
-                <directory>resources</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
