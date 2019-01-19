@@ -25,9 +25,9 @@ class AutoCompleteTextField : TextField() {
 	 * Get the existing set of autocomplete entries.
 	 * @return The existing autocomplete entries.
 	 */
-	val entries : SortedSet<String>
+	val entries: SortedSet<String>
 	/** The popup used to select an entry.  */
-	private val entriesPopup : ContextMenu
+	private val entriesPopup: ContextMenu
 	val textBeforeCaret
 		get() = text.substring(0, caretPosition)
 
@@ -41,10 +41,11 @@ class AutoCompleteTextField : TextField() {
 			} else {
 				val searchResult = LinkedList<String>()
 				val matcher = Pattern.compile("(\\S+)\$")
-					.matcher(textBeforeCaret)
+						.matcher(textBeforeCaret)
 				matcher.find()
 				try {
-					val lastword = matcher.group(1).toUpperCase()
+					val lastword = matcher.group(1)
+							.toUpperCase()
 					println(lastword)
 					searchResult.addAll(entries.filter { it.indexOf(lastword) > -1 })
 					if (entries.size > 0) {
@@ -55,7 +56,7 @@ class AutoCompleteTextField : TextField() {
 					} else {
 						entriesPopup.hide()
 					}
-				} catch (e : Exception) {
+				} catch (e: Exception) {
 				}
 			}
 		}
@@ -63,21 +64,22 @@ class AutoCompleteTextField : TextField() {
 		focusedProperty().addListener { observableValue, aBoolean, aBoolean2 -> entriesPopup.hide() }
 	}
 
-	private fun buildTextFlow(text : String, filter : String) : TextFlow {
-		val filterIndex = text.toLowerCase().indexOf(filter.toLowerCase())
+	private fun buildTextFlow(text: String, filter: String): TextFlow {
+		val filterIndex = text.toLowerCase()
+				.indexOf(filter.toLowerCase())
 		val textBefore = Text(text.substring(0, filterIndex))
 		val textAfter = Text(text.substring(filterIndex + filter.length))
 		val textFilter = Text(
-			text.substring(
-				filterIndex, filterIndex + filter.length
-			)
+				text.substring(
+						filterIndex, filterIndex + filter.length
+				)
 		) //instead of "filter" to keep all "case sensitive"
 		textFilter.fill = Color.RED
 		textFilter.font = Font.font("Helvetica", FontWeight.BOLD, 13.0)
 		return TextFlow(textBefore, textFilter, textAfter)
 	}
 
-	private fun populatePopup(searchResult : List<String>, searchRequest : String) {
+	private fun populatePopup(searchResult: List<String>, searchRequest: String) {
 		val menuItems = LinkedList<CustomMenuItem>()
 		// If you'd like more entries, modify this line.
 		val maxEntries = 10

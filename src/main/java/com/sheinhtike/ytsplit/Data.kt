@@ -10,10 +10,10 @@ import java.util.regex.Pattern
 data class Timestamp(val hours: Int = 0, val minutes: Int = 0, val seconds: Int = 0) : Comparable<Timestamp> {
 	val totalSeconds by lazy { ((hours * 60) + minutes) * 60 + seconds }
 	override fun compareTo(other: Timestamp): Int = when {
-		totalSeconds < other.totalSeconds -> -1
+		totalSeconds < other.totalSeconds  -> -1
 		totalSeconds == other.totalSeconds -> 0
-		totalSeconds > other.totalSeconds -> 1
-		else -> 0
+		totalSeconds > other.totalSeconds  -> 1
+		else                               -> 0
 	}
 
 	override fun toString(): String = if (hours == 0) "$minutes:$seconds"

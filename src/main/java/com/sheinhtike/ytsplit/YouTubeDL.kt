@@ -21,41 +21,45 @@ import java.util.regex.Pattern
 
 
 class YouTubeDL {
-	var url : String?
+	var url: String?
 		get() = urlProperty.value
 		set(value) {
 			urlProperty.set(value)
 			jsonLoaded = false
 		}
 	val urlProperty = SimpleStringProperty()
-	private lateinit var json : JsonObject
+	private lateinit var json: JsonObject
 	var jsonLoaded = false
-	private lateinit var audioFile : Path
-	private lateinit var outputFiles : HashMap<Song, Path>
+	private lateinit var audioFile: Path
+	private lateinit var outputFiles: HashMap<Song, Path>
 	val albumArtProperty = SimpleObjectProperty<Path>()
-	var albumArt : Path
+	var albumArt: Path
 		get() = albumArtProperty.value
 		set(value) {
 			albumArtProperty.value = value
 		}
-	private lateinit var albumArtDefault : Path
+	private lateinit var albumArtDefault: Path
 
 	fun loadJsonData() {
 		val pb = ProcessBuilder().loadEnv()
 		pb.command(*WINDOWS_ARGS, Dependencies.youtubeDLPath.toString(), "-J", "-f", "bestaudio", url)
+		println(Dependencies.youtubeDLPath.toString())
 		val process = pb.start()
 		val input = process.input
+		println(input)
 		process.waitFor()
-		json = JsonParser().parse(input).asJsonObject
+		json = JsonParser().parse(input)
+				.asJsonObject
 		jsonLoaded = true
 	}
 
-	fun getProperty(property : String) : String? = json.get(property).asString
+	fun getProperty(property: String): String? = json.get(property).asString
 
 	fun fetchAlbumArt() {
 		val url = URL(getProperty("thumbnail"))
 		val rbc = Channels.newChannel(url.openStream())
-		val matcher = Pattern.compile("\\.(.{1,5})\$").matcher(getProperty("thumbnail"))
+		val matcher = Pattern.compile("\\.(.{1,5})\$")
+				.matcher(getProperty("thumbnail"))
 		matcher.find()
 		val ext = matcher.group(1)
 		val thumbnailFile = File.createTempFile("thumbnail", ext)
@@ -82,7 +86,7 @@ class YouTubeDL {
 		audioFile = dest.toPath()
 	}
 
-	private fun writeTag(song : Song, numTracks : Int) {
+	private fun writeTag(song: Song, numTracks: Int) {
 		val file = outputFiles[song]?.toFile()
 		if (file != null) {
 			val audioFile = AudioFileIO.read(file)
@@ -97,35 +101,37 @@ class YouTubeDL {
 		}
 	}
 
-	fun save(directory : Path, encoding : String, bitrate : Int, songs : List<Song>, updater : () -> Unit) : Long {
+	fun save(directory: Path, encoding: String, bitrate: Int, songs: List<Song>, updater: () -> Unit): Long {
 		val startTime = System.nanoTime()
 		download()
 		updater()
 		outputFiles = HashMap()
 		val ffmpeg = FFmpeg(Dependencies.ffmpegPath.toString())
-		songs.parallelStream().forEach {
-			// setup filename
-			if (it.artist == null) it.artist = ""
-			if (it.song == null) it.song = ""
-			var outFileName =
-				if (it.artist.isNotEmpty()) "${String.format("%02d", it.trackNo)}. ${it.song} - ${it.artist}.$encoding"
-				else "${String.format("%02d", it.trackNo)}. ${it.song}.$encoding"
-			outFileName = sanitizeFilename(outFileName)
+		songs.parallelStream()
+				.forEach {
+					// setup filename
+					if (it.artist == null) it.artist = ""
+					if (it.song == null) it.song = ""
+					var outFileName =
+							if (it.artist.isNotEmpty()) "${String.format("%02d", it.trackNo)}. ${it.song} - ${it.artist}.$encoding"
+							else "${String.format("%02d", it.trackNo)}. ${it.song}.$encoding"
+					outFileName = sanitizeFilename(outFileName)
 
-			// setup command
-			val builder = FFmpegBuilder()
-				.setInput(audioFile.toString())
-				.overrideOutputFiles(true)
-				.addOutput(directory.resolve(outFileName).toString())
-				.setAudioBitRate((1024 * bitrate).toLong())
-				.setStartOffset(it.timestamp.totalSeconds.toLong(), TimeUnit.SECONDS)
-			if (it.endTime != null) builder.addExtraArgs("-to", it.endTime.toString())
-			val executor = FFmpegExecutor(ffmpeg)
-			executor.createJob(builder.done()).run()
-			outputFiles[it] = directory.resolve(outFileName)
-			writeTag(it, songs.size)
-			updater()
-		}
+					// setup command
+					val builder = FFmpegBuilder()
+							.setInput(audioFile.toString())
+							.overrideOutputFiles(true)
+							.addOutput(directory.resolve(outFileName).toString())
+							.setAudioBitRate((1024 * bitrate).toLong())
+							.setStartOffset(it.timestamp.totalSeconds.toLong(), TimeUnit.SECONDS)
+					if (it.endTime != null) builder.addExtraArgs("-to", it.endTime.toString())
+					val executor = FFmpegExecutor(ffmpeg)
+					executor.createJob(builder.done())
+							.run()
+					outputFiles[it] = directory.resolve(outFileName)
+					writeTag(it, songs.size)
+					updater()
+				}
 		return System.nanoTime() - startTime
 	}
 }

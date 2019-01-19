@@ -23,8 +23,8 @@ import java.util.zip.ZipInputStream
 
 
 object Dependencies {
-	lateinit var ffmpegPath : Path
-	lateinit var youtubeDLPath : Path
+	lateinit var ffmpegPath: Path
+	lateinit var youtubeDLPath: Path
 
 	val arePresent by lazy {
 		var yt = isInPath("youtube-dl")
@@ -40,9 +40,9 @@ object Dependencies {
 	}
 
 	fun loadPaths() {
-		if (OS.isWindows) {
-			val ytPath = Paths.get("ffmpeg.exe")
-			val ffPath = Paths.get("youtube-dl.exe")
+		if (OS.isWindows){
+			val ytPath = Paths.get("youtube-dl.exe")
+			val ffPath = Paths.get("ffmpeg.exe")
 			if (ytPath == null || ffPath == null) {
 				throw FileNotFoundException("Files not found in path")
 			}
@@ -60,11 +60,11 @@ object Dependencies {
 	}
 
 	private fun decompress() {
-		fun decompressFile(zis : ZipInputStream) {
+		fun decompressFile(zis: ZipInputStream) {
 			val buffer = ByteArray(1024)
 			val newFile = File("ffmpeg.exe")
 			val fos = FileOutputStream(newFile)
-			var len : Int
+			var len: Int
 			len = zis.read(buffer)
 			while (len > 0) {
 				fos.write(buffer, 0, len)
@@ -78,7 +78,7 @@ object Dependencies {
 		val fileZip = "ffmpeg.zip"
 		val fis = FileInputStream(fileZip)
 		val zis = ZipInputStream(fis)
-		var zipEntry : ZipEntry? = zis.nextEntry
+		var zipEntry: ZipEntry? = zis.nextEntry
 		while (zipEntry != null) {
 			if (zipEntry.name.contains(Regex("ffmpeg\\.exe$"))) {
 				decompressFile(zis)
@@ -96,34 +96,39 @@ object Dependencies {
 	}
 
 
-	fun showMacInstructions(stage : Stage) {
+	fun showMacInstructions(stage: Stage) {
 		val mycontroller = object {
 			@FXML
-			lateinit var tf1 : TextField
+			lateinit var tf1: TextField
 			@FXML
-			lateinit var tf2 : TextField
+			lateinit var tf2: TextField
 			@FXML
-			lateinit var open : Button
+			lateinit var open: Button
 			@FXML
-			lateinit var close : Button
+			lateinit var close: Button
 
 			@FXML
 			fun initialize() {
-				tf1.focusedProperty().addListener { _, _, new ->
-					if (new) Platform.runLater { tf1.selectAll() }
-				}
-				tf1.selectionProperty().addListener { _, old, new ->
-					if (old != new) Platform.runLater { tf1.selectAll() }
-				}
-				tf2.focusedProperty().addListener { _, _, new ->
-					if (new) Platform.runLater { tf2.selectAll() }
-				}
-				tf2.selectionProperty().addListener { _, old, new ->
-					if (old != new) Platform.runLater { tf2.selectAll() }
-				}
+				tf1.focusedProperty()
+						.addListener { _, _, new ->
+							if (new) Platform.runLater { tf1.selectAll() }
+						}
+				tf1.selectionProperty()
+						.addListener { _, old, new ->
+							if (old != new) Platform.runLater { tf1.selectAll() }
+						}
+				tf2.focusedProperty()
+						.addListener { _, _, new ->
+							if (new) Platform.runLater { tf2.selectAll() }
+						}
+				tf2.selectionProperty()
+						.addListener { _, old, new ->
+							if (old != new) Platform.runLater { tf2.selectAll() }
+						}
 				open.onAction = EventHandler {
 					val file = File("/Applications/Utilities/Terminal.app")
-					Desktop.getDesktop().open(file)
+					Desktop.getDesktop()
+							.open(file)
 				}
 				close.onAction = EventHandler {
 					Platform.runLater {
@@ -135,10 +140,12 @@ object Dependencies {
 		val fxmlLoader = FXMLLoader(javaClass.getResource("/SetupMac.fxml"))
 		fxmlLoader.setController(mycontroller)
 		val root = fxmlLoader.load<Any>() as Parent
-		stage.title = "Dependencies"
-		stage.scene = Scene(root)
-		stage.isResizable = false
-		stage.show()
+		stage.apply {
+			title = "Dependencies"
+			scene = Scene(root)
+			isResizable = false
+			show()
+		}
 	}
 
 	fun getDependenciesWin() {
@@ -159,7 +166,7 @@ object Dependencies {
 		}
 	}
 
-	private fun isInPath(command : String) : Boolean {
+	private fun isInPath(command: String): Boolean {
 		if (File(command).exists()) return true
 		val possibleLocations = OS.PATH.map { it.resolve(command) }
 		val out = possibleLocations.find { Files.exists(it) }
@@ -168,10 +175,11 @@ object Dependencies {
 
 	private fun extractYoutubeDL() {
 		if (File("youtube-dl.exe").exists()) return
-		val `is` = javaClass.getResource("/youtube-dl.exe").openStream()
+		val `is` = javaClass.getResource("/youtube-dl.exe")
+				.openStream()
 		val os = FileOutputStream("youtube-dl.exe")
 		val b = ByteArray(2048)
-		var length : Int
+		var length: Int
 		length = `is`.read(b)
 		while (length != -1) {
 			os.write(b, 0, length)
@@ -184,26 +192,26 @@ object Dependencies {
 
 	fun downloadZip() {
 		System.setProperty("http.agent", "Chrome")
-		data class Link(val filename : String, val date : LocalDateTime)
+		data class Link(val filename: String, val date: LocalDateTime)
 		if (File("ffmpeg.zip").exists()) return
-		val inputStr : InputStream? = null
+		val inputStr: InputStream? = null
 
 		try {
 			val website = URL(
-				if (System.getProperty("os.arch").contains("64")) "https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip"
-				else "https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-latest-win32-static.zip"
+					if (System.getProperty("os.arch").contains("64")) "https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip"
+					else "https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-latest-win32-static.zip"
 			)
 			val rbc = Channels.newChannel(website.openStream())
 			val fos = FileOutputStream("ffmpeg.zip")
 			fos.channel.transferFrom(rbc, 0, java.lang.Long.MAX_VALUE)
-		} catch (mue : MalformedURLException) {
+		} catch (mue: MalformedURLException) {
 			mue.printStackTrace()
-		} catch (ioe : IOException) {
+		} catch (ioe: IOException) {
 			ioe.printStackTrace()
 		} finally {
 			try {
 				inputStr?.close()
-			} catch (ioe : IOException) {
+			} catch (ioe: IOException) {
 				// nothing to see here
 			}
 		}

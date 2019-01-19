@@ -33,48 +33,48 @@ import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.util.*
 
-class Controller(private val stage : Stage) {
+class Controller(private val stage: Stage) {
 
 	//FXML UI Components
 	@FXML
-	private lateinit var urlField : TextField
+	private lateinit var urlField: TextField
 	@FXML
-	private lateinit var outputFolderField : TextField
+	private lateinit var outputFolderField: TextField
 	@FXML
-	private lateinit var outputFolderChooserButton : Button
+	private lateinit var outputFolderChooserButton: Button
 	@FXML
-	private lateinit var downloadButton : Button
+	private lateinit var downloadButton: Button
 	@FXML
-	private lateinit var descriptionBox : TextArea
+	private lateinit var descriptionBox: TextArea
 	@FXML
-	private lateinit var getDescriptionButton : Button
+	private lateinit var getDescriptionButton: Button
 	@FXML
-	private lateinit var regexButton : Button
+	private lateinit var regexButton: Button
 	@FXML
-	private lateinit var backButton : Button
+	private lateinit var backButton: Button
 	@FXML
-	private lateinit var regexField : AutoCompleteTextField
+	private lateinit var regexField: AutoCompleteTextField
 	@FXML
-	private lateinit var albumField : TextField
+	private lateinit var albumField: TextField
 	@FXML
-	private lateinit var bitrateField : TextField
+	private lateinit var bitrateField: TextField
 	@FXML
-	private lateinit var formatComboBox : ComboBox<String>
+	private lateinit var formatComboBox: ComboBox<String>
 	@FXML
-	private lateinit var songsTable : TableView<Song>
+	private lateinit var songsTable: TableView<Song>
 	@FXML
-	private lateinit var albumArt : ImageView
+	private lateinit var albumArt: ImageView
 	@FXML
-	private lateinit var secondPaneBottomBar : HBox
+	private lateinit var secondPaneBottomBar: HBox
 	@FXML
-	private lateinit var secondPaneVBox : VBox
+	private lateinit var secondPaneVBox: VBox
 	@FXML
-	private lateinit var mainVBox : VBox
+	private lateinit var mainVBox: VBox
 
 	private var progressBar = ProgressBar()
 
-	internal lateinit var firstPane : Parent
-	internal lateinit var secondPane : Parent
+	internal lateinit var firstPane: Parent
+	internal lateinit var secondPane: Parent
 
 	private val youtubeDL = YouTubeDL()
 	private var songs = ArrayList<Song>()
@@ -91,36 +91,34 @@ class Controller(private val stage : Stage) {
 
 	private var progressBarShown = false
 		set(value) {
-			progressBar
-				.progress = 0.0
+			progressBar.progress = 0.0
 			if (field == value) return
 			if (value) {
-				secondPaneVBox
-					.children
-					.remove(secondPaneBottomBar)
-				secondPaneVBox
-					.children
-					.add(progressBar)
-				VBox
-					.setMargin(progressBar, Insets(12.0, 0.0, 12.0, 0.0))
+				VBox.setMargin(progressBar, Insets(12.0, 0.0, 12.0, 0.0))
+				secondPaneVBox.children.apply {
+					remove(secondPaneBottomBar)
+					add(progressBar)
+				}
 			} else {
-				secondPaneVBox
-					.children
-					.remove(progressBar)
-				secondPaneVBox
-					.children
-					.add(secondPaneBottomBar)
+				secondPaneVBox.children.apply {
+					remove(progressBar)
+					add(secondPaneBottomBar)
+				}
 			}
 			field = value
 		}
 
 	init {
-		progressBar.prefHeight = 5.0
-		progressBar.prefWidth = Double.MAX_VALUE
-		progressBar.progress = 0.0
+		progressBar.run {
+			prefHeight = 5.0
+			prefWidth = Double.MAX_VALUE
+			progress = 0.0
+		}
 	}
+
 	class MyDialog : Stage() {
 		val taskDone = SimpleBooleanProperty(false)
+
 		init {
 			setOnCloseRequest { if (!taskDone.value) it.consume() }
 		}
@@ -134,7 +132,7 @@ class Controller(private val stage : Stage) {
 		}
 	}
 
-	private fun showLoadingDialog(task : () -> Unit) {
+	private fun showLoadingDialog(task: () -> Unit) {
 		val dialog = MyDialog()
 		dialog.initOwner(stage)
 		dialog.title = "Setup"
@@ -148,16 +146,17 @@ class Controller(private val stage : Stage) {
 				task()
 				dialog.taskDone.value = true
 				Platform.runLater { dialog.close() }
-			} catch (e : Exception) {
+			} catch (e: Exception) {
 				e.printStackTrace(System.out)
 				Platform.runLater {
-					val errorDialog = Alert(Alert.AlertType.ERROR)
-					errorDialog.headerText = null
-					errorDialog.title = "Error"
-					errorDialog.headerText = "Download failed"
-					errorDialog.contentText = "Try again Later"
-					errorDialog.width = 220.0
-					errorDialog.showAndWait()
+					Alert(Alert.AlertType.ERROR).apply {
+						headerText = null
+						title = "Error"
+						headerText = "Download failed"
+						contentText = "Try again Later"
+						width = 220.0
+						showAndWait()
+					}
 					dialog.close()
 					stage.close()
 				}
@@ -209,7 +208,7 @@ class Controller(private val stage : Stage) {
 						val fil = db.files[0]
 						try {
 							youtubeDL.albumArt = fil.toPath()
-						} catch (e : Exception) {
+						} catch (e: Exception) {
 						}
 					}
 				}
@@ -262,7 +261,8 @@ class Controller(private val stage : Stage) {
 			artist.setOnEditCommit {
 				if (songs.none { it.artist.isNotBlank() }) songs.forEach { s -> s.artist = it.newValue }
 			}
-			songsTable.editableProperty().value = true
+			songsTable.editableProperty()
+					.value = true
 			songsTable.columns.addAll(track, song, artist)
 		}
 
@@ -271,19 +271,23 @@ class Controller(private val stage : Stage) {
 
 		outputFolderChooserButton.setOnAction { handleFolderChoose() }
 		downloadButton.setOnAction { handleDownloadButton() }
-		outputFolderField.textProperty().addListener { _, _, _ -> updateDownloadButton() }
-		bitrateField.textProperty().addListener { _, _, _ -> updateDownloadButton() }
-		formatComboBox.selectionModelProperty().addListener { _, _, _ -> updateDownloadButton() }
-		formatComboBox.selectionModel.selectedItemProperty().addListener { _, _, _ -> updateDownloadButton() }
+		outputFolderField.textProperty()
+				.addListener { _, _, _ -> updateDownloadButton() }
+		bitrateField.textProperty()
+				.addListener { _, _, _ -> updateDownloadButton() }
+		formatComboBox.selectionModelProperty()
+				.addListener { _, _, _ -> updateDownloadButton() }
+		formatComboBox.selectionModel.selectedItemProperty()
+				.addListener { _, _, _ -> updateDownloadButton() }
 		backButton.setOnAction { firstPaneSwitch() }
 	}
 
 	private fun handleAlbumArtChange() {
 		val fc = FileChooser()
 		fc.extensionFilters.add(
-			FileChooser.ExtensionFilter(
-				"Image Files", "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.tiff", "*.gif"
-			)
+				FileChooser.ExtensionFilter(
+						"Image Files", "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.tiff", "*.gif"
+				)
 		)
 		fc.title = "Select Album Art"
 		val newImg = fc.showOpenDialog(stage) ?: return
@@ -316,13 +320,20 @@ class Controller(private val stage : Stage) {
 
 	private fun handleDownloadButton() {
 		try {
-			outputFolderField.disableProperty().value = true
-			songsTable.disableProperty().value = true
-			albumField.disableProperty().value = true
-			bitrateField.disableProperty().value = true
-			formatComboBox.disableProperty().value = true
-			outputFolderChooserButton.disableProperty().value = true
-			albumArt.disableProperty().value = true
+			outputFolderField.disableProperty()
+					.value = true
+			songsTable.disableProperty()
+					.value = true
+			albumField.disableProperty()
+					.value = true
+			bitrateField.disableProperty()
+					.value = true
+			formatComboBox.disableProperty()
+					.value = true
+			outputFolderChooserButton.disableProperty()
+					.value = true
+			albumArt.disableProperty()
+					.value = true
 			songs.forEach { it.album = album }
 			val numTasks = (songs.size + 1).toDouble()
 			var tasksCompleted = 0
@@ -340,64 +351,83 @@ class Controller(private val stage : Stage) {
 					youtubeDL.save(directory, codec, bitrateField.text.toInt(), songs, addProgress)
 					Platform.runLater {
 						progressBarShown = false
-						val alert = Alert(Alert.AlertType.INFORMATION)
-						alert.title = "Save Complete"
-						alert.headerText = null
-						alert.contentText = "Files saved to $directory"
-
-						alert.buttonTypes.clear()
-						alert.buttonTypes.add(ButtonType.CLOSE)
-						alert.buttonTypes.add(ButtonType("Open Folder", ButtonBar.ButtonData.YES))
+						val alert = Alert(Alert.AlertType.INFORMATION).apply {
+							title = "Save Complete"
+							headerText = null
+							contentText = "Files saved to $directory"
+							buttonTypes.clear()
+							buttonTypes.add(ButtonType.CLOSE)
+							buttonTypes.add(ButtonType("Open Folder", ButtonBar.ButtonData.YES))
+						}
 
 						val out = alert.showAndWait()
 
 						if (out.isPresent) {
 							if (out.get().buttonData == ButtonBar.ButtonData.YES) {
-								Desktop.getDesktop().open(directory.toFile())
+								Desktop.getDesktop()
+										.open(directory.toFile())
 							}
 						}
 					}
 				} finally {
-					outputFolderField.disableProperty().value = false
-					songsTable.disableProperty().value = false
-					albumField.disableProperty().value = false
-					bitrateField.disableProperty().value = false
-					formatComboBox.disableProperty().value = false
-					outputFolderChooserButton.disableProperty().value = false
-					albumArt.disableProperty().value = false
+					outputFolderField.disableProperty()
+							.value = false
+					songsTable.disableProperty()
+							.value = false
+					albumField.disableProperty()
+							.value = false
+					bitrateField.disableProperty()
+							.value = false
+					formatComboBox.disableProperty()
+							.value = false
+					outputFolderChooserButton.disableProperty()
+							.value = false
+					albumArt.disableProperty()
+							.value = false
 					Platform.runLater { progressBarShown = false }
 				}
 			}
-		} catch (e : FileNotFoundException) {
-			outputFolderField.disableProperty().value = false
-			songsTable.disableProperty().value = false
-			albumField.disableProperty().value = false
-			bitrateField.disableProperty().value = false
-			formatComboBox.disableProperty().value = false
-			outputFolderChooserButton.disableProperty().value = false
+		} catch (e: FileNotFoundException) {
+			outputFolderField.disableProperty()
+					.value = false
+			songsTable.disableProperty()
+					.value = false
+			albumField.disableProperty()
+					.value = false
+			bitrateField.disableProperty()
+					.value = false
+			formatComboBox.disableProperty()
+					.value = false
+			outputFolderChooserButton.disableProperty()
+					.value = false
 			progressBarShown = false
-			albumArt.disableProperty().value = false
+			albumArt.disableProperty()
+					.value = false
 		}
 	}
 
 	@Suppress("UNUSED_VARIABLE")
 	private fun updateDownloadButton() {
 		if (formatComboBox.selectionModel.selectedItem == null) {
-			downloadButton.disableProperty().value = true
+			downloadButton.disableProperty()
+					.value = true
 			return
 		}
 		try {
 			val int = bitrateField.text.toInt()
-		} catch (e : NumberFormatException) {
-			downloadButton.disableProperty().value = true
+		} catch (e: NumberFormatException) {
+			downloadButton.disableProperty()
+					.value = true
 			return
 		}
 		val file = File(outputFolderField.text)
 		if (file.exists() && file.isDirectory) {
-			downloadButton.disableProperty().value = false
+			downloadButton.disableProperty()
+					.value = false
 			return
 		} else {
-			downloadButton.disableProperty().value = true
+			downloadButton.disableProperty()
+					.value = true
 		}
 	}
 
@@ -405,9 +435,12 @@ class Controller(private val stage : Stage) {
 		if (getDescriptionButton.graphic is ProgressIndicator) return
 		urlField.styleClass -= "error"
 		regexField.requestFocus()
-		descriptionBox.disableProperty().value = true
-		regexButton.disableProperty().value = true
-		urlField.disableProperty().value = true
+		descriptionBox.disableProperty()
+				.value = true
+		regexButton.disableProperty()
+				.value = true
+		urlField.disableProperty()
+				.value = true
 		val oldtext = getDescriptionButton.graphic
 		getDescriptionButton.text = ""
 		val indicator = ProgressIndicator()
@@ -420,22 +453,26 @@ class Controller(private val stage : Stage) {
 				youtubeDL.loadJsonData()
 				val description = youtubeDL.getProperty("description")
 				descriptionBox.text = description
-				regexButton.disableProperty().value = false
+				regexButton.disableProperty()
+						.value = false
 				descriptionBox.isDisable = false
 				urlField.styleClass -= "error"
-			} catch (e : Exception) {
+			} catch (e: Exception) {
 				Platform.runLater {
 					urlField.requestFocus()
 					urlField.selectAll()
 					urlField.styleClass += "error"
-					regexButton.disableProperty().value = true
+					regexButton.disableProperty()
+							.value = true
 					descriptionBox.clear()
 					descriptionBox.isDisable = true
 				}
 			} finally {
-				urlField.disableProperty().value = false
+				urlField.disableProperty()
+						.value = false
 				regexField.styleClass -= "error"
-				if (youtubeDL.jsonLoaded) getDescriptionButton.disableProperty().value = false
+				if (youtubeDL.jsonLoaded) getDescriptionButton.disableProperty()
+						.value = false
 				Platform.runLater {
 					getDescriptionButton.graphic = oldtext
 				}
@@ -454,7 +491,7 @@ class Controller(private val stage : Stage) {
 			songs = SongRegex.matchSongs(matcher)
 			secondPaneSwitch()
 			regexField.styleClass -= "error"
-		} catch (e : Exception) {
+		} catch (e: Exception) {
 			e.printStackTrace()
 			regexField.styleClass += "error"
 			Platform.runLater {

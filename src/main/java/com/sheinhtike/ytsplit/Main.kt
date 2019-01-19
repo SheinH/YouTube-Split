@@ -11,26 +11,28 @@ import java.io.IOException
 
 
 class MainApp : Application() {
-	private lateinit var controller : Controller
-	override fun start(stage : Stage) {
+	private lateinit var controller: Controller
+	override fun start(stage: Stage) {
 		controller = Controller(stage)
 		if (OS.isMac && !Dependencies.arePresent) {
 			Dependencies.showMacInstructions(stage)
 		} else startMainApp(stage)
 	}
 
-	private fun startMainApp(stage : Stage) {
+	private fun startMainApp(stage: Stage) {
 		var fxmlLoader = FXMLLoader(javaClass.getResource("/FirstPane.fxml"))
 		Dependencies.loadPaths()
 		fxmlLoader.setController(controller)
 		var root = fxmlLoader.load<Any>() as Parent
 		controller.firstPaneInit()
 		controller.firstPane = root
-		stage.title = "YouTube Split"
-		stage.scene = Scene(root)
-		stage.scene.stylesheets.add("style.css")
-		stage.isResizable = false
-		stage.show()
+		stage.apply {
+			title = "YouTube Split"
+			scene = Scene(root)
+			scene.stylesheets.add("style.css")
+			isResizable = false
+			show()
+		}
 		GlobalScope.launch {
 			if (OS.isWindows && !Dependencies.arePresent) controller.getDependenciesWin()
 			Dependencies.loadPaths()
@@ -44,6 +46,6 @@ class MainApp : Application() {
 }
 
 @Throws(IOException::class)
-fun main(args : Array<String>) {
+fun main(args: Array<String>) {
 	Application.launch(MainApp::class.java, *args)
 }
