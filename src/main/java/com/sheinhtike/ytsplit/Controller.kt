@@ -133,14 +133,15 @@ class Controller(private val stage: Stage) {
 	}
 
 	private fun showLoadingDialog(task: () -> Unit) {
-		val dialog = MyDialog()
-		dialog.initOwner(stage)
-		dialog.title = "Setup"
-		dialog.initModality(Modality.APPLICATION_MODAL)
-		dialog.initStyle(StageStyle.UNDECORATED)
-		val node = FXMLLoader(javaClass.getResource("/Setup.fxml")).load<Any>()
-		dialog.scene = Scene(node as Parent)
-		dialog.show()
+		val dialog = MyDialog().apply {
+			initOwner(stage)
+			title = "Setup"
+			initModality(Modality.APPLICATION_MODAL)
+			initStyle(StageStyle.UNDECORATED)
+			val node = FXMLLoader(javaClass.getResource("/Setup.fxml")).load<Any>()
+			scene = Scene(node as Parent)
+			show()
+		}
 		GlobalScope.launch {
 			try {
 				task()
