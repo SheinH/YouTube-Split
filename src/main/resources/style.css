@@ -1,21 +1,26 @@
-.root{
+.root {
     -fx-faint-focus-color: transparent;
     -fx-focus-color: #6e88d9; /* here rgba (corrected) */
     -fx-accent: #aed5ff;
     -fx-highlight-text-fill: black;
 }
-.label{
--fx-font-size : 13
+
+.label {
+    -fx-font-size: 13
 }
-.progress-indicator{
+
+.progress-indicator {
     -fx-accent: #0096C9;
 }
- .progress::-webkit-progress-value {
-   transition: width 0.5s ease;
- }
+
+.progress::-webkit-progress-value {
+    transition: width 0.5s ease;
+}
+
 .warning {
     -fx-background-color: #FF000055;
 }
+
 .button,
 .toggle-button,
 .radio-button > .radio,
@@ -28,23 +33,27 @@
     -fx-background-radius: 4px;
 }
 
-.button{
+.button {
     -fx-border-radius: 5;
 }
-.text-field, .text-area{
+
+.text-field, .text-area {
     -fx-background-radius: 0px;
     -fx-highlight-text-fill: black;
     -fx-text-fill: black;
 }
+
 .success {
     -fx-background-color: #00FF0055;
 }
+
 .text-field.error {
     -fx-effect: dropshadow(three-pass-box, darkred, 7, 0, 0, 0);
 }
-.text-field.error:focused{
+
+.text-field.error:focused {
     -fx-faint-focus-color: transparent;
-    -fx-focus-color:rgba(0,0,0,0); /* here rgba (corrected) */
+    -fx-focus-color: rgba(0, 0, 0, 0); /* here rgba (corrected) */
 }
 
 .warning {
@@ -54,6 +63,7 @@
 .progress-bar {
     -fx-accent: #3c7cff;
 }
+
 .progress-bar > .bar {
     -fx-accent: #3c7cff;
     -fx-background-insets: 0;
