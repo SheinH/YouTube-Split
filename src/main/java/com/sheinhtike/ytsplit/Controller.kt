@@ -70,6 +70,8 @@ class Controller(private val stage: Stage) {
 	private lateinit var secondPaneVBox: VBox
 	@FXML
 	private lateinit var mainVBox: VBox
+	@FXML
+	private lateinit var updateMenuItem: MenuItem
 
 	private var progressBar = ProgressBar()
 
@@ -173,6 +175,7 @@ class Controller(private val stage: Stage) {
 				it.consume()
 			}
 		}
+		updateMenuItem.setOnAction { handleupdateMenuItem() }
 		getDescriptionButton.setOnAction { handleDescriptionButton() }
 		regexButton.setOnAction { handleRegexButton() }
 		urlField.setOnKeyPressed {
@@ -281,6 +284,10 @@ class Controller(private val stage: Stage) {
 		formatComboBox.selectionModel.selectedItemProperty()
 				.addListener { _, _, _ -> updateDownloadButton() }
 		backButton.setOnAction { firstPaneSwitch() }
+	}
+
+	private fun handleupdateMenuItem(){
+		Dependencies.upgradeYoutubeDL();
 	}
 
 	private fun handleAlbumArtChange() {

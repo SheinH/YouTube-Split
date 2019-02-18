@@ -1,5 +1,8 @@
 package com.sheinhtike.ytsplit
 
+import com.google.gson.Gson
+import com.google.gson.JsonElement
+import com.google.gson.JsonParser
 import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.fxml.FXML
@@ -20,6 +23,8 @@ import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import java.io.BufferedReader
+import java.lang.StringBuilder
 
 
 object Dependencies {
@@ -192,15 +197,19 @@ object Dependencies {
 
 	fun downloadZip() {
 		System.setProperty("http.agent", "Chrome")
-		data class Link(val filename: String, val date: LocalDateTime)
 		if (File("ffmpeg.zip").exists()) return
-		val inputStr: InputStream? = null
+		val url =
+				if (System.getProperty("os.arch").contains("64"))
+					"https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip"
+				else
+					"https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-latest-win32-static.zip"
+		download(url)
+	}
 
+	fun download(url : String){
+		val inputStr: InputStream? = null
 		try {
-			val website = URL(
-					if (System.getProperty("os.arch").contains("64")) "https://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip"
-					else "https://ffmpeg.zeranoe.com/builds/win32/static/ffmpeg-latest-win32-static.zip"
-			)
+			val website = URL(url)
 			val rbc = Channels.newChannel(website.openStream())
 			val fos = FileOutputStream("ffmpeg.zip")
 			fos.channel.transferFrom(rbc, 0, java.lang.Long.MAX_VALUE)
@@ -216,5 +225,33 @@ object Dependencies {
 			}
 		}
 	}
+
+    fun upgradeYoutubeDL() {/*
+		if(OS.isMac){
+			val pb = ProcessBuilder().loadEnv()
+			pb.command("brew", "upgrade", "youtube-dl")
+			val process = pb.start()
+			println(process.input)
+			println(process.error)
+		}
+		else if(OS.isWindows){*/
+			fun getText(url: URL) : String{
+				val input = BufferedReader(InputStreamReader(url.openStream()))
+				var output = StringBuilder()
+				var line : String? = input.readLine();
+				while(line != null) {
+					output.append(line)
+					output.append('\n')
+					line = input.readLine()
+				}
+				return output.toString()
+			}
+			val text = getText(url = URL("https://api.github.com/repos/rg3/youtube-dl/releases/latest"))
+			val json = JsonParser().parse(text)
+					.asJsonObject
+			val asset = json.get("assets").asJsonArray.map{ it.asJsonObject }.first { it.get("name").asString == "youtube-dl.exe" }
+			download(asset.get("browser_download_url").asString)
+		//}
+    }
 }
 
