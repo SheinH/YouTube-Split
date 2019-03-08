@@ -23,6 +23,6 @@ This means that other programs and devices can recognize these music files.
 
 ## License
 
-[!<img src="https://upload.wikimedia.org/wikipedia/commons/9/93/GPLv3_Logo.svg" alt="GPLv3 license" width=200>](https://www.gnu.org/licenses/gpl-3.0)
+<a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://upload.wikimedia.org/wikipedia/commons/9/93/GPLv3_Logo.svg" alt="GPLv3 license" width=200></a>
 
 YouTube-Split is licensed under the GNU General Public License v3.0, also included in this repository in the LICENSE file.
