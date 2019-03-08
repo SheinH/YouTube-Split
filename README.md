@@ -25,4 +25,4 @@ This means that other programs and devices can recognize these music files.
 
 [![GPLv3 license](https://www.gnu.org/graphics/gplv3-with-text-136x68.png)](https://www.gnu.org/licenses/gpl-3.0)
 
-YouTube-Split is licensed under the GNU Lesser General Public License v3.0, also included in our repository in the LICENSE file.
+YouTube-Split is licensed under the GNU General Public License v3.0, also included in our repository in the LICENSE file.
