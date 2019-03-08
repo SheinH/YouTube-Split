@@ -1,4 +1,4 @@
-# YouTube Split
+# YouTube Split [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 YouTube Split is an application for ripping full-length albums off youtube
 ![Initial View](https://i.imgur.com/CEY0Jkp.png)
 
@@ -20,3 +20,9 @@ The cover art can also be changed. The user must then select an audio format and
 Finally, after hitting download, the program outputs each song to the target folder as separate files. 
 Each of the filenames are fully formatted and each file comes with metadata info along with cover art.
 This means that other programs and devices can recognize these music files.
+
+## License
+
+[![GPLv3 license](https://www.gnu.org/graphics/gplv3-with-text-136x68.png)](https://www.gnu.org/licenses/gpl-3.0)
+
+YouTube-Split is licensed under the GNU Lesser General Public License v3.0, also included in our repository in the LICENSE file.
