@@ -10,6 +10,8 @@ import net.bramp.ffmpeg.builder.FFmpegBuilder
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
+import org.jaudiotagger.audio.mp3.MP3File
+import org.jaudiotagger.tag.id3.ID3v1Tag
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
@@ -89,15 +91,63 @@ class YouTubeDL {
 	private fun writeTag(song: Song, numTracks: Int) {
 		val file = outputFiles[song]?.toFile()
 		if (file != null) {
-			val audioFile = AudioFileIO.read(file)
-			val art = ArtworkFactory.createArtworkFromFile(albumArt.toFile())
-			audioFile.tag.setField(art)
-			if (song.artist.isNotBlank()) audioFile.tag.setField(FieldKey.ARTIST, song.artist)
-			if (song.song.isNotBlank()) audioFile.tag.setField(FieldKey.TITLE, song.song)
-			if (song.album.isNotBlank()) audioFile.tag.setField(FieldKey.ALBUM, song.album)
-			if (song.trackNo != null) audioFile.tag.setField(FieldKey.TRACK, song.trackNo.toString())
-			audioFile.tag.setField(FieldKey.TRACK_TOTAL, numTracks.toString())
-			audioFile.commit()
+			when {
+				file.extension == "mp3" -> {
+					val audioFile = AudioFileIO.read(file) as MP3File
+
+					// Removing ID3v1 tag
+					if(audioFile.hasID3v1Tag()) {
+						audioFile.delete(audioFile.iD3v1Tag)
+					}
+
+					// New ID3v1 tag
+					val id3v1Tag = ID3v1Tag()
+
+					// Setting fields
+					if (song.artist.isNotBlank()) id3v1Tag.setField(FieldKey.ARTIST, song.artist)
+					if (song.song.isNotBlank()) id3v1Tag.setField(FieldKey.TITLE, song.song)
+					if (song.album.isNotBlank()) id3v1Tag.setField(FieldKey.ALBUM, song.album)
+					if (song.trackNo != null) id3v1Tag.setField(FieldKey.TRACK, song.trackNo.toString())
+
+					// Setting ID3v1 tag to audio file
+					audioFile.iD3v1Tag = id3v1Tag
+
+					// Removing ID3v2 tag
+					if(audioFile.hasID3v2Tag()) {
+						audioFile.delete(audioFile.iD3v2Tag)
+					}
+
+					// New ID3v2 tag
+					val id3v2Tag = audioFile.tagOrCreateDefault
+
+					// Setting fields
+					if (song.artist.isNotBlank()) id3v2Tag.setField(FieldKey.ARTIST, song.artist)
+					if (song.song.isNotBlank()) id3v2Tag.setField(FieldKey.TITLE, song.song)
+					if (song.album.isNotBlank()) id3v2Tag.setField(FieldKey.ALBUM, song.album)
+					if (song.trackNo != null) id3v2Tag.setField(FieldKey.TRACK, song.trackNo.toString())
+					id3v2Tag.setField(FieldKey.TRACK_TOTAL, numTracks.toString())
+
+					val art = ArtworkFactory.createArtworkFromFile(albumArt.toFile())
+					id3v2Tag.setField(art)
+
+					// Setting ID3v2 tag to audio file
+					audioFile.tag = id3v2Tag
+
+					// Commit
+					audioFile.commit()
+				}
+				file.extension == "m4a" -> {
+					val audioFile = AudioFileIO.read(file)
+					val art = ArtworkFactory.createArtworkFromFile(albumArt.toFile())
+					audioFile.tag.setField(art)
+					if (song.artist.isNotBlank()) audioFile.tag.setField(FieldKey.ARTIST, song.artist)
+					if (song.song.isNotBlank()) audioFile.tag.setField(FieldKey.TITLE, song.song)
+					if (song.album.isNotBlank()) audioFile.tag.setField(FieldKey.ALBUM, song.album)
+					if (song.trackNo != null) audioFile.tag.setField(FieldKey.TRACK, song.trackNo.toString())
+					audioFile.tag.setField(FieldKey.TRACK_TOTAL, numTracks.toString())
+					audioFile.commit()
+				}
+			}
 		}
 	}
 
